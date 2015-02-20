@@ -109,9 +109,9 @@ extern int arg_csh;		// use csh as default shell
 extern int arg_seccomp;	// enable seccomp filter
 extern char *arg_seccomp_list;//  optional seccomp list
 extern int arg_seccomp_empty;// start with an empty syscall list
-extern int arg_caps_default_filter; // enable capabilities default filter
+extern int arg_caps_filter; // enable capabilities default filter
 extern int arg_caps_drop_all;	// drop all capabilities
-extern uint64_t arg_caps_custom_filter;	// set custom capabilities filter
+extern int arg_caps_empty;// start with an empty caps list
 extern int arg_trace;		// syscall tracing support
 extern int arg_rlimit_nofile;	// rlimit nofile
 extern int arg_rlimit_nproc;	// rlimit nproc

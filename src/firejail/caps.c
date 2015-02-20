@@ -31,6 +31,210 @@ extern int capget(cap_user_header_t hdrp, cap_user_data_t datap);
 extern int capset(cap_user_header_t hdrp, const cap_user_data_t datap);
 
 
+typedef struct {
+	char *name;
+	int nr;
+} CapsEntry;
+
+static CapsEntry capslist[] = {
+//
+// code generated using tools/extract-caps
+//
+#ifdef CAP_CHOWN
+	{"chown", CAP_CHOWN },
+#endif
+#ifdef CAP_DAC_OVERRIDE
+	{"dac_override", CAP_DAC_OVERRIDE },
+#endif
+#ifdef CAP_DAC_READ_SEARCH
+	{"dac_read_search", CAP_DAC_READ_SEARCH },
+#endif
+#ifdef CAP_FOWNER
+	{"fowner", CAP_FOWNER },
+#endif
+#ifdef CAP_FSETID
+	{"fsetid", CAP_FSETID },
+#endif
+#ifdef CAP_KILL
+	{"kill", CAP_KILL },
+#endif
+#ifdef CAP_SETGID
+	{"setgid", CAP_SETGID },
+#endif
+#ifdef CAP_SETUID
+	{"setuid", CAP_SETUID },
+#endif
+#ifdef CAP_SETPCAP
+	{"setpcap", CAP_SETPCAP },
+#endif
+#ifdef CAP_LINUX_IMMUTABLE
+	{"linux_immutable", CAP_LINUX_IMMUTABLE },
+#endif
+#ifdef CAP_NET_BIND_SERVICE
+	{"net_bind_service", CAP_NET_BIND_SERVICE },
+#endif
+#ifdef CAP_NET_BROADCAST
+	{"net_broadcast", CAP_NET_BROADCAST },
+#endif
+#ifdef CAP_NET_ADMIN
+	{"net_admin", CAP_NET_ADMIN },
+#endif
+#ifdef CAP_NET_RAW
+	{"net_raw", CAP_NET_RAW },
+#endif
+#ifdef CAP_IPC_LOCK
+	{"ipc_lock", CAP_IPC_LOCK },
+#endif
+#ifdef CAP_IPC_OWNER
+	{"ipc_owner", CAP_IPC_OWNER },
+#endif
+#ifdef CAP_SYS_MODULE
+	{"sys_module", CAP_SYS_MODULE },
+#endif
+#ifdef CAP_SYS_RAWIO
+	{"sys_rawio", CAP_SYS_RAWIO },
+#endif
+#ifdef CAP_SYS_CHROOT
+	{"sys_chroot", CAP_SYS_CHROOT },
+#endif
+#ifdef CAP_SYS_PTRACE
+	{"sys_ptrace", CAP_SYS_PTRACE },
+#endif
+#ifdef CAP_SYS_PACCT
+	{"sys_pacct", CAP_SYS_PACCT },
+#endif
+#ifdef CAP_SYS_ADMIN
+	{"sys_admin", CAP_SYS_ADMIN },
+#endif
+#ifdef CAP_SYS_BOOT
+	{"sys_boot", CAP_SYS_BOOT },
+#endif
+#ifdef CAP_SYS_NICE
+	{"sys_nice", CAP_SYS_NICE },
+#endif
+#ifdef CAP_SYS_RESOURCE
+	{"sys_resource", CAP_SYS_RESOURCE },
+#endif
+#ifdef CAP_SYS_TIME
+	{"sys_time", CAP_SYS_TIME },
+#endif
+#ifdef CAP_SYS_TTY_CONFIG
+	{"sys_tty_config", CAP_SYS_TTY_CONFIG },
+#endif
+#ifdef CAP_MKNOD
+	{"mknod", CAP_MKNOD },
+#endif
+#ifdef CAP_LEASE
+	{"lease", CAP_LEASE },
+#endif
+#ifdef CAP_AUDIT_WRITE
+	{"audit_write", CAP_AUDIT_WRITE },
+#endif
+#ifdef CAP_AUDIT_CONTROL
+	{"audit_control", CAP_AUDIT_CONTROL },
+#endif
+#ifdef CAP_SETFCAP
+	{"setfcap", CAP_SETFCAP },
+#endif
+#ifdef CAP_MAC_OVERRIDE
+	{"mac_override", CAP_MAC_OVERRIDE },
+#endif
+#ifdef CAP_MAC_ADMIN
+	{"mac_admin", CAP_MAC_ADMIN },
+#endif
+#ifdef CAP_SYSLOG
+	{"syslog", CAP_SYSLOG },
+#endif
+#ifdef CAP_WAKE_ALARM
+	{"wake_alarm", CAP_WAKE_ALARM },
+#endif
+
+//
+// end of generated code
+//
+}; // end of capslist
+
+const char *caps_find_nr(int nr) {
+	int i;
+	int elems = sizeof(capslist) / sizeof(capslist[0]);
+	for (i = 0; i < elems; i++) {
+		if (nr == capslist[i].nr)
+			return capslist[i].name;
+	}
+	
+	return "unknown";
+}
+
+// return -1 if error, or syscall number
+static int caps_find_name(const char *name) {
+	int i;
+	int elems = sizeof(capslist) / sizeof(capslist[0]);
+	for (i = 0; i < elems; i++) {
+		if (strcmp(name, capslist[i].name) == 0)
+			return capslist[i].nr;
+	}
+	
+	return -1;
+}
+
+// return 1 if error, 0 if OK
+int caps_check_list(const char *slist, void (*callback)(int)) {
+	// don't allow empty lists
+	if (slist == NULL || *slist == '\0' || strcmp(slist, "empty") == 0 || strcmp(slist, "empty,") == 0) {
+		fprintf(stderr, "Error: empty syscall lists are not allowed\n");
+		return -1;
+	}
+
+	// work on a copy of the string
+	char *str = strdup(slist);
+	if (!str)
+		errExit("strdup");
+
+	char *ptr = str;
+	char *start = str;
+	while (*ptr != '\0') {
+		if (islower(*ptr) || isdigit(*ptr) || *ptr == '_')
+			;
+		else if (*ptr == ',') {
+			*ptr = '\0';
+			int nr = caps_find_name(start);
+			if (nr == -1 && strcmp(start, "empty") == 0) {
+				arg_caps_empty = 1;
+			}
+			else if (nr == -1) {
+				fprintf(stderr, "Error: capability %s not found\n", start);
+				return -1;
+			}
+			else if (callback != NULL)
+				callback(nr);
+				
+			start = ptr + 1;
+		}
+		ptr++;
+	}
+	if (*start != '\0') {
+		int nr = caps_find_name(start);
+		if (nr == -1) {
+			fprintf(stderr, "Error: capability %s not found\n", start);
+			return -1;
+		}
+		else if (callback != NULL)
+			callback(nr);
+	}
+	
+	return 0;
+}
+
+void caps_print(void) {
+	int i;
+	int elems = sizeof(capslist) / sizeof(capslist[0]);
+	for (i = 0; i < elems; i++) {
+		printf("%d\t- %s\n", capslist[i].nr, capslist[i].name);
+	}
+}
+
+
+
 // enabled by default
 int caps_default_filter(void) {
 	// drop capabilities
@@ -67,7 +271,7 @@ int caps_default_filter(void) {
 	if (prctl(PR_CAPBSET_DROP, CAP_MKNOD, 0, 0, 0) && arg_debug)
 		fprintf(stderr, "Warning: cannot drop CAP_MKNOD");
 	else if (arg_debug)
-		printf("Drop CAP_SYSLOG\n");
+		printf("Drop CAP_MKNOD\n");
 
 	if (prctl(PR_CAPBSET_DROP, CAP_SYS_ADMIN, 0, 0, 0) && arg_debug)
 		fprintf(stderr, "Warning: cannot drop CAP_SYS_ADMIN");

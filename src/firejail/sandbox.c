@@ -144,10 +144,8 @@ int sandbox(void* sandbox_arg) {
 			arg_seccomp_empty = 0; // force the default syscall list in case the user disabled it
 			
 			// disable all capabilities
-			if (arg_caps_default_filter || arg_caps_custom_filter)
-				fprintf(stderr, "Warning: all capabilities disabled for a regular user during chroot\n");
-			arg_caps_default_filter = 0;
-			arg_caps_custom_filter = 0;
+//todo			if (arg_caps_default_filter)
+//				fprintf(stderr, "Warning: all capabilities disabled for a regular user during chroot\n");
 			arg_caps_drop_all = 1;
 			
 			// drop all supplementary groups; /etc/group file inside chroot
@@ -287,9 +285,9 @@ int sandbox(void* sandbox_arg) {
 	// set capabilities
 	if (arg_caps_drop_all)
 		caps_drop_all();
-	else if (arg_caps_custom_filter)
-		caps_set(arg_caps_custom_filter);
-	else if (arg_caps_default_filter)
+//todo	else if (arg_caps_custom_filter)
+//		caps_set(arg_caps_custom_filter);
+	else if (arg_caps_filter)
 		caps_default_filter();
 
 	// set rlimits
