@@ -88,7 +88,11 @@ int profile_check_line(char *ptr, int lineno) {
 		return 0;
 	}
 	else if (strcmp(ptr, "caps") == 0) {
-		arg_caps_filter = 1;
+		arg_caps_default_filter = 1;
+		return 0;
+	}
+	else if (strcmp(ptr, "caps.drop all") == 0) {
+		arg_caps_drop_all = 1;
 		return 0;
 	}
 	else if (strcmp(ptr, "private") == 0) {
@@ -115,6 +119,30 @@ int profile_check_line(char *ptr, int lineno) {
 		if (syscall_check_list(arg_seccomp_list, NULL))
 			exit(1);
 #endif
+		return 0;
+	}
+	
+	// caps drop list
+	if (strncmp(ptr, "caps.drop ", 10) == 0) {
+		arg_caps_drop = 1;
+		arg_caps_list = strdup(ptr + 10);
+		if (!arg_caps_list)
+			errExit("strdup");
+		// verify seccomp list and exit if problems
+		if (caps_check_list(arg_caps_list, NULL))
+			exit(1);
+		return 0;
+	}
+	
+	// caps keep list
+	if (strncmp(ptr, "caps.keep ", 10) == 0) {
+		arg_caps_keep = 1;
+		arg_caps_list = strdup(ptr + 10);
+		if (!arg_caps_list)
+			errExit("strdup");
+		// verify seccomp list and exit if problems
+		if (caps_check_list(arg_caps_list, NULL))
+			exit(1);
 		return 0;
 	}
 	

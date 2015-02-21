@@ -106,12 +106,17 @@ extern int arg_command;	// -c
 extern int arg_overlay;		// --overlay
 extern int arg_zsh;		// use zsh as default shell
 extern int arg_csh;		// use csh as default shell
+
 extern int arg_seccomp;	// enable seccomp filter
 extern char *arg_seccomp_list;//  optional seccomp list
 extern int arg_seccomp_empty;// start with an empty syscall list
-extern int arg_caps_filter; // enable capabilities default filter
-extern int arg_caps_drop_all;	// drop all capabilities
-extern int arg_caps_empty;// start with an empty caps list
+
+extern int arg_caps_default_filter;	// enable default capabilities filter
+extern int arg_caps_drop;		// drop list
+extern int arg_caps_drop_all;		// drop all capabilities
+extern int arg_caps_keep;		// keep list
+extern char *arg_caps_list;		// optional caps list
+
 extern int arg_trace;		// syscall tracing support
 extern int arg_rlimit_nofile;	// rlimit nofile
 extern int arg_rlimit_nproc;	// rlimit nproc

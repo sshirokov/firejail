@@ -178,15 +178,15 @@ static int caps_find_name(const char *name) {
 }
 
 // return 1 if error, 0 if OK
-int caps_check_list(const char *slist, void (*callback)(int)) {
+int caps_check_list(const char *clist, void (*callback)(int)) {
 	// don't allow empty lists
-	if (slist == NULL || *slist == '\0' || strcmp(slist, "empty") == 0 || strcmp(slist, "empty,") == 0) {
-		fprintf(stderr, "Error: empty syscall lists are not allowed\n");
+	if (clist == NULL || *clist == '\0') {
+		fprintf(stderr, "Error: empty capabilities lists are not allowed\n");
 		return -1;
 	}
 
 	// work on a copy of the string
-	char *str = strdup(slist);
+	char *str = strdup(clist);
 	if (!str)
 		errExit("strdup");
 
@@ -198,10 +198,7 @@ int caps_check_list(const char *slist, void (*callback)(int)) {
 		else if (*ptr == ',') {
 			*ptr = '\0';
 			int nr = caps_find_name(start);
-			if (nr == -1 && strcmp(start, "empty") == 0) {
-				arg_caps_empty = 1;
-			}
-			else if (nr == -1) {
+			if (nr == -1) {
 				fprintf(stderr, "Error: capability %s not found\n", start);
 				return -1;
 			}
@@ -307,4 +304,29 @@ void caps_set(uint64_t caps) {
 				errExit("PR_CAPBSET_DROP");
 		}
 	}
+}
+
+
+static uint64_t filter;
+
+static void caps_set_bit(int nr) {
+	uint64_t mask = 1LLU << nr;
+	filter |= mask;
+}
+static void caps_reset_bit(int nr) {
+	uint64_t mask = 1LLU << nr;
+	filter &= ~mask;
+}
+
+void caps_drop_list(const char *clist) {
+	filter = 0;
+	filter--;
+	caps_check_list(clist, caps_reset_bit);
+	caps_set(filter);
+}
+
+void caps_keep_list(const char *clist) {
+	filter = 0;
+	caps_check_list(clist, caps_set_bit);
+	caps_set(filter);
 }

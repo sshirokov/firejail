@@ -33,3 +33,7 @@ dist:
 	cp *.h firejail-lkm/.
 	tar -cjvf firejail-lkm-$(VERSION).tar.bz2 firejail-lkm
 	rm -fr firejail-lkm
+
+install: all
+	cp firejail.ko /opt/lkm/.
+

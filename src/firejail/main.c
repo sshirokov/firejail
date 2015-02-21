@@ -51,9 +51,10 @@ int arg_seccomp = 0;				// enable seccomp filter
 char *arg_seccomp_list = NULL;		// optional seccomp list
 int arg_seccomp_empty = 0;			// start with an empty syscall list
 
-int arg_caps_filter = 0;			// enable default capabilities filter
-int arg_caps_drop_all = 0;				// drop all capabilities
-int arg_caps_empty = 0;			// start with an empty caps list
+int arg_caps_default_filter = 0;			// enable default capabilities filter
+int arg_caps_drop = 0;				// drop list
+int arg_caps_drop_all = 0;			// drop all capabilities
+int arg_caps_keep = 0;			// keep list
 char *arg_caps_list = NULL;			// optional caps list
 
 int arg_trace = 0;				// syscall tracing support
@@ -283,15 +284,24 @@ int main(int argc, char **argv) {
 		}
 #endif		
 		else if (strcmp(argv[i], "--caps") == 0)
-			arg_caps_filter = 1;
-		else if (strcmp(argv[i], "--caps=none") == 0)
+			arg_caps_default_filter = 1;
+		else if (strcmp(argv[i], "--caps.drop=all") == 0)
 			arg_caps_drop_all = 1;
-		else if (strncmp(argv[i], "--caps=", 7) == 0) {
-			arg_caps_filter = 1;
-			arg_caps_list = strdup(argv[i] + 10);
+		else if (strncmp(argv[i], "--caps.drop=", 12) == 0) {
+			arg_caps_drop = 1;
+			arg_caps_list = strdup(argv[i] + 12);
 			if (!arg_caps_list)
 				errExit("strdup");
-			// verify seccomp list and exit if problems
+			// verify caps list and exit if problems
+			if (caps_check_list(arg_caps_list, NULL))
+				return 1;
+		}
+		else if (strncmp(argv[i], "--caps.keep=", 12) == 0) {
+			arg_caps_keep = 1;
+			arg_caps_list = strdup(argv[i] + 12);
+			if (!arg_caps_list)
+				errExit("strdup");
+			// verify caps list and exit if problems
 			if (caps_check_list(arg_caps_list, NULL))
 				return 1;
 		}
