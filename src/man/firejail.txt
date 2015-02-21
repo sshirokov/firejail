@@ -30,7 +30,14 @@ Blacklist directory or file.
 Execute command and exit.
 .TP
 \fB\--caps
-Enable Linux capabilities filter
+Enable default Linux capabilities filter. The filter disables CAP_SYS_MODULE, CAP_SYS_RAWIO, CAP_SYS_BOOT, 
+CAP_SYS_NICE, CAP_SYS_TTY_CONFIG, CAP_SYSLOG, CAP_MKNOD, CAP_SYS_ADMIN.
+.TP
+\fB\--caps.drop=capability,capability,capability 
+Blacklist Linux capabilities filter.
+.TP
+\fB\--caps.keep=capability,capability,capability 
+Whitelist Linux capabilities filter.
 .TP
 \fB\--cgroup=tasks-file
 Place the sandbox in the specified control group. tasks-file is the full path of cgroup tasks file.
@@ -51,14 +58,25 @@ Print debug messages.
 \fB\--debug-syscalls
 Print all recognized system calls in the current Firejail software build and exit.
 .TP
+\fB\--debug-caps
+Print all recognized capabilities in the current Firejail software build and exit.
+.TP
 \fB\--defaultgw=address
 Use this address as default gateway in the new network namespace.
+.TP
+\fB\--dns=address
+Set a DNS server for the sandbox. This option is valid only if at least one  new network interface was defined
+using --net option. Up to three DNS servers can be defined.
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Print options end exit.
 .TP
 \fB\--ip=address
 Use this IP address in the new network namespace.
+.TP
+\fB\--ip=none
+No IP address and no default gateway are configured in the new network namespace. Use this option
+in case you intend to start an external DHCP client in the sandbox.
 .TP
 \fB\--ipc-namespace
 Enable  a new IPC namespace if the sandbox was started as a regular user. IPC namespace is enabled by default only if
@@ -81,18 +99,54 @@ Enable a new network namespace and connect it to this bridge device.
 Unless specified with option --ip and --defaultgw, an IP address and a default gateway will be assigned
 automatically to the sandbox. The IP address is checked using ARP before assignment. The IP address
 assigned as default gateway is the bridge device IP address. Up to four --net
-bridge devices can be defined.
+bridge devices can be defined. Mixing bridge and macvlan devices is allowed.
+
+.TP
+\fB\--net=ethernet_interface
+Enable a new network namespace and connect it
+to this ethernet_interface using the standard Linux macvlan
+driver. Unless specified with option --ip and --defaultgw, an
+IP address and a default gateway will be assigned automatically
+to the sandbox. The IP address is checked using ARP before
+assignment. The IP address assigned as default gateway is the
+default gateway of the host. Up to four --net devices can
+be defined. Mixing bridge and macvlan devices is allowed.
+.TP
+\fB\--net=none
+Enable a new, unconnected network namespace.
+.TP
+\fB\--netfilter
+Enable the default client network filter in the new network namespace:
+.br
+
+.br
+*filter
+.br
+:INPUT DROP [0:0]
+.br
+:FORWARD DROP [0:0]
+.br
+:OUTPUT ACCEPT [0:0]
+.br
+-A INPUT -i lo -j ACCEPT
+.br
+-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+.br
+-A INPUT -p icmp -j ACCEPT
+.br
+COMMIT
+.TP
+\fB\--netfilter=filename 
+Enable the network filter specified by filename in the new network namespace. The filter file format
+is the format of iptables-save and iptable-restore commands.
 .TP
 \fB\--nogroups
 Disable supplementary groups. Without this option, supplementary groups are enabled for the user starting the
 sandbox. For root user supplementary groups are always disabled.
 .TP
-\fB\--noip
-No IP address and no default gateway are configured in the new network namespace. Use this option
-in case you intend to start a DHCP client in the sandbox.
-.TP
-\fB\--net=none
-Enable a new, unconnected network namespace.
+\fB\--output=logfile
+stdout logging and log rotation. Copy stdout to logfile, and keep the size of the file under 500KB using log
+rotation. Five files with prefixes .1 to .5 are used in rotation.
 .TP
 \fB\--overlay
 Mount a filesystem overlay on top of the current filesystem. OverlayFS support is required in Linux kernel

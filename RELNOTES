@@ -1,16 +1,15 @@
 firejail (0.9.21) baseline; urgency=low
   * this is a rolling development version
-  * todo: help and man support for all
   * Container stdout logging and log rotation
   * Added process_vm_readv, process_vm_writev and mknod to default seccomp blacklist
   * Added CAP_MKNOD to default caps blacklist
-  * Custom Linux capabilities whitefilter support
-  * bugfix: check uid/gid for cgroup
+  * Blacklist and whitlist custom Linux capabilities filters
   * replaced --noip option with --ip=none
   * macvlan device driver support for --net option
-  * preserve .Xauthority file in private mode (test with ssh -X)
-  * todo: preserve .Xauthority file in chroot mode (test with a new --net=eth0)
   * DNS server support, --dns option
+  * Netfilter support
+  * bugfix: preserve .Xauthority file in private mode (test with ssh -X)
+  * bugfix: check uid/gid for cgroup
 
  -- netblue30 <netblue30@yahoo.com>  Sun, 15 Feb 2015 08:00:00 -0500
 

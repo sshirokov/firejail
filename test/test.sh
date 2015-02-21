@@ -148,6 +148,9 @@ fi
 echo "TESTING: PID"
 ./pid.exp
 
+echo "TESTING: output"
+./output.exp
+
 echo "TESTING: profile no permissions"
 ./profile_noperm.exp
 

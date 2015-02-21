@@ -1,0 +1,57 @@
+#!/usr/bin/expect -f
+
+set timeout 10
+spawn $env(SHELL)
+match_max 100000
+
+send -- "rm -f logfile*\r"
+sleep 1
+puts "\n"
+
+send -- "firejail --output=logfile\r"
+sleep 2
+puts "\n"
+
+send -- "env | grep container\r"
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"firejail"
+}
+
+puts "\nsleep 15\n\n"
+send -- "find /usr/share\r"
+sleep 15
+puts "\n"
+sleep 5
+puts "\n"
+
+send -- "ls -al logfile*\r"
+expect {
+	timeout {puts "TESTING ERROR 1\n";exit}
+	"logfile"
+}
+expect {
+	timeout {puts "TESTING ERROR 2\n";exit}
+	"logfile.1"
+}
+expect {
+	timeout {puts "TESTING ERROR 3\n";exit}
+	"logfile.2"
+}
+expect {
+	timeout {puts "TESTING ERROR 4\n";exit}
+	"logfile.3"
+}
+expect {
+	timeout {puts "TESTING ERROR 5\n";exit}
+	"logfile.4"
+}
+expect {
+	timeout {puts "TESTING ERROR 6\n";exit}
+	"logfile.5"
+}
+sleep 1
+send -- "rm -f logfile*\r"
+sleep 1
+
+puts "\n"
