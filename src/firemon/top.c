@@ -97,10 +97,6 @@ static char *print_top(unsigned index, unsigned parent, unsigned *utime, unsigne
 		else
 			ptruser = "";
 			
-		char entry[60];
-		snprintf(entry, 60, "%s:%s:%s", pidstr, ptruser, ptrcmd);
-			
-
 		// memory
 		int pgsz = getpagesize();
 		char rss[10];

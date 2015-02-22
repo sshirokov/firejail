@@ -125,6 +125,10 @@ int main(int argc, char **argv) {
 			list();
 			return 0;
 		}
+		else if (strcmp(argv[i], "--netstats") == 0) {
+			netstats();
+			return 0;
+		}
 		else if (strcmp(argv[i], "--seccomp") == 0) {
 			seccomp();
 			return 0;

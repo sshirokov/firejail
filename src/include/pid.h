@@ -34,6 +34,10 @@ typedef struct {
 	char *cmd;
 	unsigned utime;
 	unsigned stime;
+	unsigned long long rx;	// network rx, bytes
+	unsigned long long tx;	// networking tx, bytes
+	unsigned rx_delta;
+	unsigned tx_delta;
 } Process;
 extern Process pids[MAX_PIDS];
 
