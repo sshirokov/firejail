@@ -30,6 +30,17 @@ void top(void) {
 	execvp("/bin/bash", arg); 
 }
 
+void netstats(void) {
+	drop_privs(1);
+	
+	char *arg[4];
+	arg[0] = "bash";
+	arg[1] = "-c";
+	arg[2] = "firemon --netstats";
+	arg[3] = NULL;
+	execvp("/bin/bash", arg); 
+}
+
 void list(void) {
 	drop_privs(1);
 	

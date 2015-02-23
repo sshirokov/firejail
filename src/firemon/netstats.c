@@ -118,8 +118,11 @@ static void print_proc(int index, int itv, int col) {
 	else
 		ptrcmd = cmd;
 	// if the command doesn't have a --net= option, don't print
-	if (strstr(ptrcmd, "--net=") == NULL)
+	if (strstr(ptrcmd, "--net=") == NULL) {
+		if (cmd)
+			free(cmd);
 		return;
+	}
 
 	// pid
 	char pidstr[10];
@@ -148,6 +151,12 @@ static void print_proc(int index, int itv, int col) {
 	if (col < 1024)
 		buf[col] = '\0';
 	printf("%s\n", buf);
+	
+	if (cmd)
+		free(cmd);
+	if (user)
+		free(user);
+	
 }
 
 void netstats(void) {

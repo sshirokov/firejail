@@ -33,6 +33,9 @@ List all sandboxes.
 \fB\--name=name
 Print information only about named sandbox.
 .TP
+\fB\--netstats
+Monitor network statistics for sandboxes creating a new network namespace.
+.TP
 \fB\--route
 Print route table for each sandbox.
 .TP

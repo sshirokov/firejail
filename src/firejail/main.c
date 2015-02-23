@@ -240,6 +240,10 @@ int main(int argc, char **argv) {
 			top();
 			exit(0);
 		}
+		else if (strcmp(argv[i], "--netstats") == 0) {
+			netstats();
+			exit(0);
+		}
 		else if (strncmp(argv[i], "--join=", 7) == 0) {
 			logargs(argc, argv);
 			

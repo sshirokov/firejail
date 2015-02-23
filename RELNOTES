@@ -1,13 +1,14 @@
 firejail (0.9.21) baseline; urgency=low
   * this is a rolling development version
+  * replaced --noip option with --ip=none
   * Container stdout logging and log rotation
   * Added process_vm_readv, process_vm_writev and mknod to default seccomp blacklist
   * Added CAP_MKNOD to default caps blacklist
-  * Blacklist and whitlist custom Linux capabilities filters
-  * replaced --noip option with --ip=none
+  * Blacklist and whitelist custom Linux capabilities filters
   * macvlan device driver support for --net option
   * DNS server support, --dns option
   * Netfilter support
+  * Monitor network statistics, --netstats option
   * bugfix: preserve .Xauthority file in private mode (test with ssh -X)
   * bugfix: check uid/gid for cgroup
 

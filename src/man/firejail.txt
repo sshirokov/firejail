@@ -140,6 +140,9 @@ COMMIT
 Enable the network filter specified by filename in the new network namespace. The filter file format
 is the format of iptables-save and iptable-restore commands.
 .TP
+\fB\--netstats
+Monitor network statistics for sandboxes creating a new network namespace.
+.TP
 \fB\--nogroups
 Disable supplementary groups. Without this option, supplementary groups are enabled for the user starting the
 sandbox. For root user supplementary groups are always disabled.

@@ -187,6 +187,7 @@ void profile_add(char *str);
 void list(void);
 void tree(void);
 void top(void);
+void netstats(void);
 
 // usage.c
 void usage(void);
@@ -262,6 +263,9 @@ int caps_default_filter(void);
 void caps_print(void);
 void caps_drop_all(void);
 void caps_set(uint64_t caps);
+int caps_check_list(const char *clist, void (*callback)(int));
+void caps_drop_list(const char *clist);
+void caps_keep_list(const char *clist);
 
 // syscall.c
 const char *syscall_find_nr(int nr);
