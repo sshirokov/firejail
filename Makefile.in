@@ -69,6 +69,7 @@ install: all
 	# etc files
 	mkdir -p $(DESTDIR)/etc/firejail
 	install -c -m 0644 etc/firefox.profile $(DESTDIR)/etc/firejail/.
+	install -c -m 0644 etc/icedove.profile $(DESTDIR)/etc/firejail/.
 	install -c -m 0644 etc/iceweasel.profile $(DESTDIR)/etc/firejail/.
 	install -c -m 0644 etc/midori.profile $(DESTDIR)/etc/firejail/.
 	install -c -m 0644 etc/evince.profile $(DESTDIR)/etc/firejail/.
@@ -78,6 +79,7 @@ install: all
 	install -c -m 0644 etc/disable-secret.inc $(DESTDIR)/etc/firejail/.
 	install -c -m 0644 etc/dropbox.profile $(DESTDIR)/etc/firejail/.
 	install -c -m 0644 etc/opera.profile $(DESTDIR)/etc/firejail/.
+	install -c -m 0644 etc/thunderbird.profile $(DESTDIR)/etc/firejail/.
 	install -c -m 0644 etc/transmission-gtk.profile $(DESTDIR)/etc/firejail/.
 	install -c -m 0644 etc/transmission-qt.profile $(DESTDIR)/etc/firejail/.
 	install -c -m 0644 etc/vlc.profile $(DESTDIR)/etc/firejail/.

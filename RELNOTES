@@ -9,6 +9,7 @@ firejail (0.9.21) baseline; urgency=low
   * DNS server support, --dns option
   * Netfilter support
   * Monitor network statistics, --netstats option
+  * Added profile for Mozilla Thunderbird/Icedove
   * bugfix: preserve .Xauthority file in private mode (test with ssh -X)
   * bugfix: check uid/gid for cgroup
 

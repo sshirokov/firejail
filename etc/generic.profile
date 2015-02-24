@@ -27,6 +27,8 @@ blacklist ${HOME}/.local/share/recently-used.xbel
 
 blacklist ${HOME}/.adobe
 blacklist ${HOME}/.macromedia
+blacklist ${HOME}/.icedove
+blacklist ${HOME}/.thunderbird
 caps
 seccomp
 netfilter
