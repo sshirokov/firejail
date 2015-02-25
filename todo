@@ -256,6 +256,16 @@ eth0                192.168.1.60        255.255.255.0       UP
 Child process initialized
 Starting nginx: nginx.
 
+nginx web server
+# firejail --caps.keep=chown,net_bind_service,setgid,setuid --seccomp "/etc/init.d/nginx start && sleep inf"
+apache web server
 # firejail --caps.keep=chown,sys_resource,net_bind_service,setuid,setgid --seccomp "/etc/init.d/apache2 start && sleep inf"
+net-snmp server
 # firejail --caps.keep=net_bind_service,setuid,setgid --seccomp "/etc/init.d/snmpd start && sleep inf"
-# firejail --caps.keep=net_bind_service,setuid,setgid --seccomp "/usr/sbin/snmpd start && sleep inf"
+# firejail --caps.keep=net_bind_service,setuid,setgid --seccomp "/usr/sbin/snmptrapd start && sleep inf"
+ISC DHCP server
+# firejail --caps.keep=net_bind_service,net_raw --seccomp "/etc/init.d/isc-dhcp-server start && sleep inf"
+
+VNC server (started as regular user)
+$ firejail --caps.drop=all --seccomp /usr/lib/vino/vino-server
+
