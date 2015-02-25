@@ -39,6 +39,7 @@ void usage(void) {
 	printf("\t--caps - enable default Linux capabilities filter. The filter disables\n");
 	printf("\t\tCAP_SYS_MODULE, CAP_SYS_RAWIO, CAP_SYS_BOOT, CAP_SYS_NICE,\n");
 	printf("\t\tCAP_SYS_TTY_CONFIG, CAP_SYSLOG, CAP_MKNOD, CAP_SYS_ADMIN.\n\n");
+	printf("\t--caps.drop=all - drop all capabilities.\n\n");
 	printf("\t--caps.drop=capability,capability,capability - blacklist Linux\n");
 	printf("\t\tcapabilities filter.\n\n");
 	printf("\t--caps.keep=capability,capability,capability - whitelist Linux\n");

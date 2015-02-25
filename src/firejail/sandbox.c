@@ -206,19 +206,6 @@ int sandbox(void* sandbox_arg) {
 	if (arg_nonetwork) {
 		net_if_up("lo");
 	}
-/*
-	else if (arg_noip) {
-		net_if_up("lo");
-		if (cfg.bridge0.configured)
-			net_if_up("eth0");
-		if (cfg.bridge1.configured)
-			net_if_up("eth1");
-		if (cfg.bridge2.configured)
-			net_if_up("eth2");
-		if (cfg.bridge3.configured)
-			net_if_up("eth3");
-	}
-*/
 	else if (any_bridge_configured()) {
 		// configure lo and eth0...eth3
 		net_if_up("lo");
@@ -241,6 +228,11 @@ int sandbox(void* sandbox_arg) {
 	
 	// if any dns server is configured, it is time to set it now
 	fs_resolvconf();
+	
+	// print the path of the new log directory
+	if (getuid() == 0) // only for root
+		printf("The new log directory is /proc/%s/root/var/log\n", childstr);
+	
 	
 	//****************************
 	// start executable

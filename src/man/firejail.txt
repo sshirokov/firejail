@@ -33,6 +33,9 @@ Execute command and exit.
 Enable default Linux capabilities filter. The filter disables CAP_SYS_MODULE, CAP_SYS_RAWIO, CAP_SYS_BOOT, 
 CAP_SYS_NICE, CAP_SYS_TTY_CONFIG, CAP_SYSLOG, CAP_MKNOD, CAP_SYS_ADMIN.
 .TP
+\fB\--caps.drop=all
+Drop all capabilities.
+.TP
 \fB\--caps.drop=capability,capability,capability 
 Blacklist Linux capabilities filter.
 .TP
