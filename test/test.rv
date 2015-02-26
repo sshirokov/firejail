@@ -35,7 +35,6 @@
 1 firejail --net=loopback
 1 firejail --net=/br0 exit
 1 firejail --net=br0 --net=br1 --net=br2 --net=br3 --net=br4 exit # only 4 networks allowed
-1 firejail --net=eth0
 
 # private mode
 0 firejail --private exit
