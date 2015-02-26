@@ -183,19 +183,19 @@ void net_check_cfg(void) {
 		net_configured++;
 	if (cfg.bridge3.configured)
 		net_configured++;
-	
+
+	// --defaultgw requires a network
+	if (cfg.defaultgw && net_configured == 0) {
+		fprintf(stderr, "Error: option --defaultgw requires at least one network to be configured\n");
+		exit(1);
+	}
+
 	if (net_configured == 0) // nothing to check
 		return;
 
 	// --net=none
 	if (arg_nonetwork && net_configured) {
 		fprintf(stderr, "Error: --net and --net=none are mutually exclusive\n");
-		exit(1);
-	}
-
-	// --defaultgw requires a network
-	if (cfg.defaultgw && net_configured == 0) {
-		fprintf(stderr, "Error: option --defaultgw requires at least one network to be configured\n");
 		exit(1);
 	}
 

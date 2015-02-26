@@ -28,7 +28,7 @@ expect {
 }
 expect {
 	timeout {puts "TESTING ERROR 2\n";exit}
-	"2:cpuset,cpu,cpuacct,devices,freezer,net_cls,blkio,perf_event:/g1"
+	":/g1"
 }
 expect {
 	timeout {puts "TESTING ERROR 3\n";exit}
