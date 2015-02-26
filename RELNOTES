@@ -1,6 +1,5 @@
-firejail (0.9.21) baseline; urgency=low
-  * this is a rolling development version
-  * replaced --noip option with --ip=none
+firejail (0.9.22-rc1) baseline; urgency=low
+  * Replaced --noip option with --ip=none
   * Container stdout logging and log rotation
   * Added process_vm_readv, process_vm_writev and mknod to default seccomp blacklist
   * Added CAP_MKNOD to default caps blacklist
@@ -10,10 +9,11 @@ firejail (0.9.21) baseline; urgency=low
   * Netfilter support
   * Monitor network statistics, --netstats option
   * Added profile for Mozilla Thunderbird/Icedove
-  * bugfix: preserve .Xauthority file in private mode (test with ssh -X)
-  * bugfix: check uid/gid for cgroup
+  * - --overlay support for Linux kernels 3.18+
+  * Bugfix: preserve .Xauthority file in private mode (test with ssh -X)
+  * Bugfix: check uid/gid for cgroup
 
- -- netblue30 <netblue30@yahoo.com>  Sun, 15 Feb 2015 08:00:00 -0500
+ -- netblue30 <netblue30@yahoo.com>  Thu, 26 Feb 2015 09:00:00 -0500
 
 firejail (0.9.20) baseline; urgency=low
   * utmp, btmp and wtmp enhancements

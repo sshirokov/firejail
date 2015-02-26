@@ -39,8 +39,10 @@ install -m 644 /etc/firejail/disable-secret.inc firejail-$VERSION/etc/firejail/d
 install -m 644 /etc/firejail/disable-mgmt.inc firejail-$VERSION/etc/firejail/disable-mgmt.inc
 install -m 644 /etc/firejail/evince.profile firejail-$VERSION/etc/firejail/evince.profile
 install -m 644 /etc/firejail/firefox.profile firejail-$VERSION/etc/firejail/firefox.profile
+install -m 644 /etc/firejail/icedove.profile firejail-$VERSION/etc/firejail/icedove.profile
 install -m 644 /etc/firejail/iceweasel.profile firejail-$VERSION/etc/firejail/iceweasel.profile
 install -m 644 /etc/firejail/midori.profile firejail-$VERSION/etc/firejail/midori.profile
+install -m 644 /etc/firejail/thunderbird.profile firejail-$VERSION/etc/firejail/thunderbird.profile
 install -m 644 /etc/firejail/opera.profile firejail-$VERSION/etc/firejail/opera.profile
 install -m 644 /etc/firejail/transmission-gtk.profile firejail-$VERSION/etc/firejail/transmission-gtk.profile
 install -m 644 /etc/firejail/transmission-qt.profile firejail-$VERSION/etc/firejail/transmission-qt.profile
@@ -102,10 +104,12 @@ rm -rf %{buildroot}
 %config(noreplace) %{_sysconfdir}/%{name}/dropbox.profile
 %config(noreplace) %{_sysconfdir}/%{name}/evince.profile
 %config(noreplace) %{_sysconfdir}/%{name}/firefox.profile
+%config(noreplace) %{_sysconfdir}/%{name}/icedove.profile
 %config(noreplace) %{_sysconfdir}/%{name}/iceweasel.profile
 %config(noreplace) %{_sysconfdir}/%{name}/login.users
 %config(noreplace) %{_sysconfdir}/%{name}/midori.profile
 %config(noreplace) %{_sysconfdir}/%{name}/opera.profile
+%config(noreplace) %{_sysconfdir}/%{name}/thunderbird.profile
 %config(noreplace) %{_sysconfdir}/%{name}/transmission-gtk.profile
 %config(noreplace) %{_sysconfdir}/%{name}/transmission-qt.profile
 %config(noreplace) %{_sysconfdir}/%{name}/vlc.profile
@@ -124,6 +128,21 @@ rm -rf %{buildroot}
 chmod u+s /usr/bin/firejail
 
 %changelog
+* Thu Feb 26 2015  netblue30 <netblue30@yahoo.com> 0.9.22-1
+ - Replaced --noip option with --ip=none
+ - Container stdout logging and log rotation
+ - Added process_vm_readv, process_vm_writev and mknod to default seccomp blacklist
+ - Added CAP_MKNOD to default caps blacklist
+ - Blacklist and whitelist custom Linux capabilities filters
+ - macvlan device driver support for --net option
+ - DNS server support, --dns option
+ - Netfilter support
+ - Monitor network statistics, --netstats option
+ - Added profile for Mozilla Thunderbird/Icedove
+ - --overlay support for Linux kernels 3.18+
+ - Bugfix: preserve .Xauthority file in private mode (test with ssh -X)
+ - Bugfix: check uid/gid for cgroup
+
 * Fri Feb 6 2015   netblue30 <netblue30@yahoo.com> 0.9.20-1
  - utmp, btmp and wtmp enhancements
  -    create empty /var/log/wtmp and /var/log/btmp files in sandbox

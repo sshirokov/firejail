@@ -2,6 +2,7 @@
 /etc/firejail/disable-secret.inc
 /etc/firejail/chromium.profile
 /etc/firejail/midori.profile
+/etc/firejail/icedove.profile
 /etc/firejail/iceweasel.profile
 /etc/firejail/dropbox.profile
 /etc/firejail/login.users
@@ -9,6 +10,7 @@
 /etc/firejail/disable-mgmt.inc
 /etc/firejail/firefox.profile
 /etc/firejail/opera.profile
+/etc/firejail/thunderbird.profile
 /etc/firejail/transmission-gtk.profile
 /etc/firejail/transmission-qt.profile
 /etc/firejail/vlc.profile
