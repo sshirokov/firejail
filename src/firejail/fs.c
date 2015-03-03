@@ -659,6 +659,62 @@ void fs_overlayfs(void) {
 	free(odiff);
 }
 
+
+
+#ifdef HAVE_CHROOT		
+// return 1 if error
+int fs_check_chroot_dir(const char *rootdir) {
+	assert(rootdir);
+	struct stat s;
+	char *name;
+
+	// check /dev
+	if (asprintf(&name, "%s/dev", rootdir) == -1)
+		errExit("asprintf");
+	if (stat(name, &s) == -1) {
+		fprintf(stderr, "Error: cannot find /dev in chroot directory\n");
+		return 1;
+	}
+	free(name);
+	
+	// check /var/tmp
+	if (asprintf(&name, "%s/var/tmp", rootdir) == -1)
+		errExit("asprintf");
+	if (stat(name, &s) == -1) {
+		fprintf(stderr, "Error: cannot find /var/tmp in chroot directory\n");
+		return 1;
+	}
+	free(name);
+	
+	// check /proc
+	if (asprintf(&name, "%s/proc", rootdir) == -1)
+		errExit("asprintf");
+	if (stat(name, &s) == -1) {
+		fprintf(stderr, "Error: cannot find /proc in chroot directory\n");
+		return 1;
+	}
+	free(name);
+	
+	// check /proc
+	if (asprintf(&name, "%s/tmp", rootdir) == -1)
+		errExit("asprintf");
+	if (stat(name, &s) == -1) {
+		fprintf(stderr, "Error: cannot find /tmp in chroot directory\n");
+		return 1;
+	}
+	free(name);
+	
+	// check /bin/bash
+	if (asprintf(&name, "%s/bin/bash", rootdir) == -1)
+		errExit("asprintf");
+	if (stat(name, &s) == -1) {
+		fprintf(stderr, "Error: cannot find /bin/bash in chroot directory\n");
+		return 1;
+	}
+	free(name);
+	
+}
+
 // chroot into an existing directory; mount exiting /dev and update /etc/resolv.conf
 void fs_chroot(const char *rootdir) {
 	assert(rootdir);
@@ -704,7 +760,7 @@ void fs_chroot(const char *rootdir) {
 		printf("Chrooting into %s\n", rootdir);
 	if (chroot(rootdir) < 0)
 		errExit("chroot");
-
+		
 	// update /var directory in order to support multiple sandboxes running on the same root directory
 	fs_dev_shm();
 	fs_var_lock();
@@ -719,4 +775,6 @@ void fs_chroot(const char *rootdir) {
 		sanitize_home();
 	
 }
+#endif
+
 

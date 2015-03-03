@@ -458,6 +458,12 @@ int main(int argc, char **argv) {
 				fprintf(stderr, "Error: cannot find %s directory, aborting\n", cfg.chrootdir);
 				return 1;
 			}
+			
+			// check chroot directory structure
+			if (fs_check_chroot_dir(cfg.chrootdir)) {
+				fprintf(stderr, "Error: invalid chroot\n");
+				exit(1);
+			}
 		}
 #endif
 		else if (strcmp(argv[i], "--private") == 0)

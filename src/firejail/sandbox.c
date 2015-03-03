@@ -135,6 +135,7 @@ int sandbox(void* sandbox_arg) {
 	//****************************
 	// configure filesystem
 	//****************************
+#ifdef HAVE_CHROOT		
 	if (cfg.chrootdir) {
 		fs_chroot(cfg.chrootdir);
 		// force caps and seccomp if not started as root
@@ -160,7 +161,9 @@ int sandbox(void* sandbox_arg) {
 		if (arg_trace)
 			fs_trace_preload();
 	}
-	else if (arg_overlay)
+	else 
+#endif		
+	if (arg_overlay)
 		fs_overlayfs();
 	else
 		fs_basic_fs();
