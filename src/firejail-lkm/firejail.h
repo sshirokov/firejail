@@ -38,8 +38,8 @@ extern spinlock_t head_lock;
 
 // trace
 #define TRACE_MAX 60		// max value for trace_cnt, decremented every second
-extern unsigned short trace_udp_port;
-extern int trace_cnt;
+extern volatile unsigned short trace_udp_port;
+extern volatile int trace_cnt;
 
 static inline NsRule *find_rule(struct nsproxy *nsproxy) {
 	NsRule *ptr;

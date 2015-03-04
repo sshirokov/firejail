@@ -151,7 +151,6 @@ void syscall_probe_connect(struct pt_regs *regs, long id, NsRule *rule) {
 
 	syscall_get_arguments(current, regs, 0, 1, &val);
 	fd = (int) val;
-
 	if (fd > 0) {
 		unsigned len = 0;
 		syscall_get_arguments(current, regs, 1, 1, &val);
@@ -170,11 +169,13 @@ void syscall_probe_connect(struct pt_regs *regs, long id, NsRule *rule) {
 			family = ((struct sockaddr *) &addr)->sa_family;
 			if (family == AF_INET) {
 				char buf[512];
+//printk(KERN_INFO "%d, trace_cnt %d\n", __LINE__, trace_cnt);
 				struct sockaddr_in *saddr4 = (struct sockaddr_in *) &addr;
 				char *a = (char *) &saddr4->sin_addr.s_addr;
 //				printk(KERN_INFO "firejail[%u]: connect AF_INET %u.%u.%u.%u\n", rule->sandbox_pid,
 //					a[0] & 0xff, a[1] & 0xff, a[2] & 0xff, a[3] & 0xff);
 				if (trace_cnt) {
+//printk(KERN_INFO "%d, trace_cnt %d\n", __LINE__, trace_cnt);
 					sprintf(buf, "conn %u AF_INET %u.%u.%u.%u\n", current->pid, a[0] & 0xff, a[1] & 0xff, a[2] & 0xff, a[3] & 0xff);
 					send_udp(buf);
 				}

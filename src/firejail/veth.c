@@ -158,7 +158,9 @@ int net_create_macvlan(const char *dev, const char *parent, unsigned pid) {
 	addattr_l(&req.n, sizeof(req), IFLA_INFO_DATA, NULL, 0);
 	int macvlan_type = MACVLAN_MODE_BRIDGE;
 	addattr_l (&req.n, sizeof(req), IFLA_INFO_KIND, &macvlan_type, 4);
-	req.n.nlmsg_len += sizeof(struct ifinfomsg);
+
+	data->rta_len = (void *)NLMSG_TAIL(&req.n) - (void *)data;
+//	req.n.nlmsg_len += sizeof(struct ifinfomsg);
 
 
 	data->rta_len = (void *)NLMSG_TAIL(&req.n) - (void *)data;
@@ -170,12 +172,6 @@ int net_create_macvlan(const char *dev, const char *parent, unsigned pid) {
 
 	return 0;
 }
-
-void test(unsigned pid) {
-	int rv = net_create_macvlan("virtual0", "eth0", pid);
-	printf("rv %d\n", rv);
-}
-
 
 /*
 int main(int argc, char **argv) {

@@ -11,8 +11,8 @@ static struct nsproxy *main_ns;
 NsRule head;
 NsRule tmp_head;
 DEFINE_SPINLOCK(head_lock);
-unsigned short trace_udp_port = 0;
-int trace_cnt = 0;
+volatile unsigned short trace_udp_port = 0;
+volatile int trace_cnt = 0;
 
 #if !(LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0))
 static struct tracepoint *tp_sysenter;
@@ -45,6 +45,7 @@ static void syscall_probe(void *__data, struct pt_regs *regs, long id) {
 
 	ptr = find_rule(current->nsproxy);
 	if (ptr) {
+//printk(KERN_INFO "syscall proxy %p\n", current->nsproxy);
 #if 0		
 		uint64_t h = (uint64_t) current->nsproxy;
 		h >>= 4;
@@ -118,7 +119,7 @@ static int firejail_seq_show(struct seq_file *s, void *v) {
 		
 	else if (current->nsproxy == main_ns && ptr->active){
 		int i;
-		seq_printf(s, "sandbox pid %d\n", ptr->sandbox_pid);
+		seq_printf(s, "sandbox pid %d, nsproxy %p\n", ptr->sandbox_pid, ptr->nsproxy);
 		for (i = 0; i < MAX_UNIX_PATH; i++) {
 			if (ptr->unix_path[i])
 				seq_printf(s, "    no connect unix %s\n", ptr->unix_path[i]);
@@ -152,7 +153,7 @@ static ssize_t firejail_write(struct file *file, const char *buffer, size_t len,
 	NsRule *ptr;
 	char *cmd_buffer;
 	unsigned long cmd_len;
-	int i;
+//	int i;
 	spin_lock(&head_lock);
 	
 	
@@ -171,9 +172,9 @@ static ssize_t firejail_write(struct file *file, const char *buffer, size_t len,
 		printk(KERN_INFO "firejail: invalid command\n");
 		goto errout;
 	}
-	for (i = 0; i < sargc; i++) {
-		printk(KERN_INFO "firejail: #%s#\n", sargv[i]);
-	}
+//	for (i = 0; i < sargc; i++) {
+//		printk(KERN_INFO "firejail: #%s#\n", sargv[i]);
+//	}
 
 	if (sargc == 4 &&
 	    strcmp(sargv[0], "no") == 0 &&
@@ -231,6 +232,7 @@ static ssize_t firejail_write(struct file *file, const char *buffer, size_t len,
 			goto errout;
 		}
 		memcpy(&ptr->real_start_time, &current->real_start_time, sizeof(struct timespec));
+		printk(KERN_INFO "firejail: new sandbox registered, pid %d, nsproxy %p\n", ptr->sandbox_pid, ptr->nsproxy);
 	}
 	else if (sargc == 2 && strcmp(sargv[0], "trace") == 0) {
 		long val;
@@ -317,8 +319,8 @@ static int __init init_main(void) {
 
 	setup_timer(&rate_timer, firejail_timeout, 0);
 	mod_timer(&rate_timer, jiffies + HZ);
+	printk(KERN_INFO "firejail: module initialized, main nsproxy %p.\n", main_ns);
 
-printk(KERN_INFO "firejail: here %d\n", __LINE__);
 	return 0;
 	
 errout2:
