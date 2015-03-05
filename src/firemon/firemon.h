@@ -74,7 +74,10 @@ void cpu(void);
 // cgroup.c
 void cgroup(void);
 
-// tree
+// tree.c
 void tree(void);
+
+// netstats.c
+void netstats(void);
 
 #endif

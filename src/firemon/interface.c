@@ -28,6 +28,7 @@
 #include <linux/netlink.h>
 #include <linux/if_link.h>
 #include <linux/sockios.h>
+#include <sys/ioctl.h>
 
 //#include <net/route.h>
 //#include <linux/if_bridge.h>
