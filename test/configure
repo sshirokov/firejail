@@ -32,7 +32,7 @@ do
 	cp --parents $FILE $ROOTDIR
 done
 cp --parents /lib64/ld-linux-x86-64.so.2 $ROOTDIR
-#cp --parents /lib/ld-linux.so.2 $ROOTDIR
+cp --parents /lib/ld-linux.so.2 $ROOTDIR
 
 cd $ROOTDIR; find .
 mkdir -p usr/lib/firejail/

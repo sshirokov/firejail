@@ -676,7 +676,7 @@ int fs_check_chroot_dir(const char *rootdir) {
 		return 1;
 	}
 	free(name);
-	
+
 	// check /var/tmp
 	if (asprintf(&name, "%s/var/tmp", rootdir) == -1)
 		errExit("asprintf");
@@ -712,7 +712,8 @@ int fs_check_chroot_dir(const char *rootdir) {
 		return 1;
 	}
 	free(name);
-	
+
+	return 0;	
 }
 
 // chroot into an existing directory; mount exiting /dev and update /etc/resolv.conf

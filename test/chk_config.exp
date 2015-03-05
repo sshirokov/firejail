@@ -7,15 +7,15 @@ match_max 100000
 # check br0
 send -- "/sbin/ifconfig;pwd\r"
 expect {
-	timeout {puts "TESTING ERROR 0\n";exit}
+	timeout {puts "TESTING ERROR 0 - please run ./configure\n";exit}
 	"br0"
 }
 expect {
-	timeout {puts "TESTING ERROR 0\n";exit}
+	timeout {puts "TESTING ERROR 0 - please run ./configure\n";exit}
 	"10.10.20.1"
 }
 expect {
-	timeout {puts "TESTING ERROR 0\n";exit}
+	timeout {puts "TESTING ERROR 0 - please run ./configure\n";exit}
 	"home"
 }
 

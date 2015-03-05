@@ -11,6 +11,7 @@ expect {
 }
 expect {
 	timeout {puts "TESTING ERROR 1\n";exit}
+	"command not found" {puts "\nTESTING: not tested, firefox not found\n"; exit}
 	"1:firefox:open" {puts "\n"}
 	"1:iceweasel:open"
 }

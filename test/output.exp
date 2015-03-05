@@ -25,6 +25,7 @@ puts "\n"
 sleep 5
 puts "\n"
 
+set timeout 2
 send -- "ls -al logfile*\r"
 expect {
 	timeout {puts "TESTING ERROR 1\n";exit}
@@ -35,19 +36,19 @@ expect {
 	"logfile.1"
 }
 expect {
-	timeout {puts "TESTING ERROR 3\n";exit}
+	timeout {puts "TESTING WARNING 3 - logfile.2 not found\n"}
 	"logfile.2"
 }
 expect {
-	timeout {puts "TESTING ERROR 4\n";exit}
+	timeout {puts "TESTING WARNING 4 - logfile.3 not found\n"}
 	"logfile.3"
 }
 expect {
-	timeout {puts "TESTING ERROR 5\n";exit}
+	timeout {puts "TESTING WARNING 5 - logfile.4 not found\n"}
 	"logfile.4"
 }
 expect {
-	timeout {puts "TESTING ERROR 6\n";exit}
+	timeout {puts "TESTING WARNING 6 - logfile.5 not found\n"}
 	"logfile.5"
 }
 sleep 1
