@@ -29,7 +29,7 @@
 static char *get_header(void) {
 	char *rv;
 	if (asprintf(&rv, "%-5.5s %-9.9s %-10.10s %-10.10s %s",
-		"PID", "User", "RX(kbps)", "TX(kbps)", "Command") == -1)
+		"PID", "User", "RX(KB/s)", "TX(KB/s)", "Command") == -1)
 		errExit("asprintf");
 	
 	return rv;
