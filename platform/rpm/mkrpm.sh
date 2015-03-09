@@ -1,5 +1,5 @@
 #!/bin/bash
-VERSION="0.9.20"
+VERSION="0.9.22"
 rm -fr ~/rpmbuild
 rm -f firejail-$VERSION-1.x86_64.rpm
 
@@ -18,6 +18,7 @@ install -m 755 /usr/bin/firemon firejail-$VERSION/usr/bin/.
 
 mkdir -p  firejail-$VERSION/usr/lib/firejail
 install -m 644 /usr/lib/firejail/libtrace.so  firejail-$VERSION/usr/lib/firejail/.
+install -m 755 /usr/lib/firejail/ftee  firejail-$VERSION/usr/lib/firejail/.
 
 mkdir -p firejail-$VERSION/usr/share/man/man1
 install -m 644 /usr/share/man/man1/firejail.1.gz firejail-$VERSION/usr/share/man/man1/.
@@ -116,6 +117,7 @@ rm -rf %{buildroot}
 /usr/bin/firejail
 /usr/bin/firemon
 /usr/lib/firejail/libtrace.so
+/usr/lib/firejail/ftee
 /usr/share/doc/packages/firejail/COPYING
 /usr/share/doc/packages/firejail/README
 /usr/share/doc/packages/firejail/RELNOTES
@@ -128,10 +130,11 @@ rm -rf %{buildroot}
 chmod u+s /usr/bin/firejail
 
 %changelog
-* Thu Feb 26 2015  netblue30 <netblue30@yahoo.com> 0.9.22-1
+* Mon Mar 9 2015  netblue30 <netblue30@yahoo.com> 0.9.22-1
  - Replaced --noip option with --ip=none
  - Container stdout logging and log rotation
- - Added process_vm_readv, process_vm_writev and mknod to default seccomp blacklist
+ - Added process_vm_readv, process_vm_writev and mknod to
+     default seccomp blacklist
  - Added CAP_MKNOD to default caps blacklist
  - Blacklist and whitelist custom Linux capabilities filters
  - macvlan device driver support for --net option
