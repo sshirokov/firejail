@@ -1,7 +1,8 @@
-firejail (0.9.22-rc1) baseline; urgency=low
+firejail (0.9.22) baseline; urgency=low
   * Replaced --noip option with --ip=none
   * Container stdout logging and log rotation
-  * Added process_vm_readv, process_vm_writev and mknod to default seccomp blacklist
+  * Added process_vm_readv, process_vm_writev and mknod to
+  *    default seccomp blacklist
   * Added CAP_MKNOD to default caps blacklist
   * Blacklist and whitelist custom Linux capabilities filters
   * macvlan device driver support for --net option
@@ -13,7 +14,7 @@ firejail (0.9.22-rc1) baseline; urgency=low
   * Bugfix: preserve .Xauthority file in private mode (test with ssh -X)
   * Bugfix: check uid/gid for cgroup
 
- -- netblue30 <netblue30@yahoo.com>  Thu, 26 Feb 2015 09:00:00 -0500
+ -- netblue30 <netblue30@yahoo.com>  Thu, 9 Mar 2015 09:00:00 -0500
 
 firejail (0.9.20) baseline; urgency=low
   * utmp, btmp and wtmp enhancements
