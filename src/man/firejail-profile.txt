@@ -95,20 +95,20 @@ Set the maximum number of processes that can be created for the real user ID of 
 Set the CPU cores available for this sandbox. Examples:
 
 .TP
-\f\ cpu 1,2,3
+cpu 1,2,3
 Use only CPU cores 0, 1 and 2.
 
 .SH Control Groups
 Place the sandbox in an existing control group specified by the full path of the task file. Example:
 
 .TP
-\f\ cgroup /sys/fs/cgroup/g1/tasks
+cgroup /sys/fs/cgroup/g1/tasks
 The sandbox is placed in g1 control group.
 
 .SH User Groups
 
 .TP
-\f\ nogroups
+nogroups
 Disable supplementary user groups
 
 .SH FILES
