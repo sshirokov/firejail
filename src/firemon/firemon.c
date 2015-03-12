@@ -27,7 +27,11 @@
 
 static int arg_route = 0;
 static int arg_arp = 0;
+static int arg_tree = 0;
 static int arg_interface = 0;
+static int arg_seccomp = 0;
+static int arg_caps = 0;
+int arg_nowrap = 0;
 
 static struct termios tlocal;	// startup terminal setting
 static struct termios twait;	// no wait on key press
@@ -129,14 +133,6 @@ int main(int argc, char **argv) {
 			netstats();
 			return 0;
 		}
-		else if (strcmp(argv[i], "--seccomp") == 0) {
-			seccomp();
-			return 0;
-		}
-		else if (strcmp(argv[i], "--caps") == 0) {
-			caps();
-			return 0;
-		}
 		else if (strcmp(argv[i], "--cgroup") == 0) {
 			cgroup();
 			return 0;
@@ -145,12 +141,17 @@ int main(int argc, char **argv) {
 			cpu();
 			return 0;
 		}
-		else if (strcmp(argv[i], "--tree") == 0) {
-			tree();
-			return 0;
-		}
 
 		// cumulative options with or without a pid argument
+		else if (strcmp(argv[i], "--seccomp") == 0) {
+			arg_seccomp = 1;
+		}
+		else if (strcmp(argv[i], "--caps") == 0) {
+			arg_caps = 1;
+		}
+		else if (strcmp(argv[i], "--tree") == 0) {
+			arg_tree = 1;
+		}
 		else if (strcmp(argv[i], "--interface") == 0) {
 			arg_interface = 1;
 		}
@@ -168,6 +169,10 @@ int main(int argc, char **argv) {
 				return 1;
 			}
 		}
+		
+		// etc
+		else if (strcmp(argv[i], "--nowrap") == 0)
+			arg_nowrap = 1;
 		
 		// invalid option
 		else if (*argv[i] == '-') {
@@ -198,8 +203,14 @@ int main(int argc, char **argv) {
 		arp((pid_t) pid);
 	if (arg_interface)
 		interface((pid_t) pid);
+	if (arg_tree)
+		tree((pid_t) pid);
+	if (arg_seccomp)
+		seccomp((pid_t) pid);
+	if (arg_caps)
+		caps((pid_t) pid);
 	
-	if (!arg_route && !arg_arp && !arg_interface)
+	if (!arg_route && !arg_arp && !arg_interface && !arg_tree && !arg_caps && !arg_seccomp)
 		procevent((pid_t) pid); // never to return
 		
 	return 0;

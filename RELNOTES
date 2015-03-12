@@ -1,3 +1,9 @@
+firejail (0.9.23 baseline; urgency=low
+  * ongoing development
+  * two build patches from Reiner Herman
+  
+ -- netblue30 <netblue30@yahoo.com>  Mon, 9 Mar 2015 09:00:00 -0500
+
 firejail (0.9.22) baseline; urgency=low
   * Replaced --noip option with --ip=none
   * Container stdout logging and log rotation

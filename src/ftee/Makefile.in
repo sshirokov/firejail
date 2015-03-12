@@ -15,7 +15,7 @@ LDFLAGS:=-pie -Wl,-z,relro -Wl,-z,now -lpthread
 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
 
 ftee: $(OBJS)
-	$(CXX)  $(LDFLAGS) -o $@ $(OBJS)
+	$(CC)  $(LDFLAGS) -o $@ $(OBJS)
 
 clean:; rm -f *.o ftee
 

@@ -86,11 +86,11 @@ install: all
 	bash -c "if [ ! -f /etc/firejail/login.users ]; then install -c -m 0644 etc/login.users $(DESTDIR)/etc/firejail/.; fi;"
 	# man pages
 	rm -f firejail.1.gz
-	gzip -9 firejail.1
+	gzip -9n firejail.1
 	rm -f firemon.1.gz
-	gzip -9 firemon.1
+	gzip -9n firemon.1
 	rm -f firejail-profile.5.gz
-	gzip -9 firejail-profile.5
+	gzip -9n firejail-profile.5
 	mkdir -p $(DESTDIR)/$(PREFIX)/share/man/man1
 	install -c -m 0644 firejail.1.gz $(DESTDIR)/$(PREFIX)/share/man/man1/.	
 	install -c -m 0644 firemon.1.gz $(DESTDIR)/$(PREFIX)/share/man/man1/.	

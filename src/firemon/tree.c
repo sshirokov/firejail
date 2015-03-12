@@ -19,17 +19,17 @@
 */
 #include "firemon.h"
 
-void tree(void) {
+void tree(pid_t pid) {
 	if (getuid() == 0)
 		firemon_drop_privs();
 	
-	pid_read(0);	// include all processes
+	pid_read(pid);	// include all processes
 	
 	// print processes
 	int i;
 	for (i = 0; i < MAX_PIDS; i++) {
 		if (pids[i].level == 1)
-			pid_print_tree(i, 0, 0);
+			pid_print_tree(i, 0, arg_nowrap);
 	}
 }
 

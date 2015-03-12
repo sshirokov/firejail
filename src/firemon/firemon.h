@@ -36,6 +36,7 @@ static inline void firemon_clrscr(void) {
 }
 
 // firemon.c
+extern int arg_nowrap;
 int find_child(int id);
 void firemon_drop_privs(void);
 void firemon_sleep(int st);
@@ -63,10 +64,10 @@ void arp(pid_t pid);
 void route(pid_t pid);
 
 // caps.c
-void caps(void);
+void caps(pid_t pid);
 
 // seccomp.c
-void seccomp(void);
+void seccomp(pid_t pid);
 
 // cpu.c
 void cpu(void);
@@ -75,7 +76,7 @@ void cpu(void);
 void cgroup(void);
 
 // tree.c
-void tree(void);
+void tree(pid_t pid);
 
 // netstats.c
 void netstats(void);
