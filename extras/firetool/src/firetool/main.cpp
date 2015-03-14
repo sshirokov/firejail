@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
 	MainWindow fc;
 	fc.show();
 	
-	QSystemTrayIcon icon(QIcon(":resources/fjail.png"));
+	QSystemTrayIcon icon(QIcon(":resources/firetool.png"));
 	icon.show();	
 	QMenu *trayIconMenu = new QMenu(&fc);
 	trayIconMenu->addAction(fc.minimizeAction);

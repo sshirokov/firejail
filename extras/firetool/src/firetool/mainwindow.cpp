@@ -14,8 +14,8 @@ MainWindow::MainWindow(QWidget *parent): QWidget(parent, Qt::FramelessWindowHint
 
 	
 	if (!which("firejail")) {
-		QMessageBox::warning(this, tr("FirejailCentral"),
-			tr("<br/><b>Firejail</b> tool not found.<br/><br/><br/>"));
+		QMessageBox::warning(this, tr("Firejail Tools"),
+			tr("<br/><b>Firejail</b> sandbox not found.<br/><br/><br/>"));
 		exit(1);
 	}
 	applications_init();
@@ -25,14 +25,16 @@ MainWindow::MainWindow(QWidget *parent): QWidget(parent, Qt::FramelessWindowHint
 	connect(thread_, SIGNAL(cycleReady(bool)), this, SLOT(cycleReady(bool)));
 
 	setContextMenuPolicy(Qt::ActionsContextMenu);
-	setToolTip(tr("Drag the lauexecncher with the left mouse button.\n"
-		"Double click on an icon to open an application.\n"
+	setToolTip(tr("Double click on an icon to open an application.\n"
+		"Drag the launcher with the left mouse button.\n"
 		"Use the right mouse button to open a context menu."));
-	setWindowTitle(tr("Firejail Central"));
+	setWindowTitle(tr("Firejail Tools"));
 }
 
 void MainWindow::cycleReady(bool update) {
-	emit cycleReadySignal(update);
+	if (stats_->isVisible()) {
+		emit cycleReadySignal(update);
+	}
 }
 
 void MainWindow::edit() {
@@ -42,7 +44,6 @@ void MainWindow::edit() {
 
 void MainWindow::run() {
 	int index = active_index_;
-	printf("run index %d\n", index);
 	if (index != -1) {
 		if (index == 0) {
 			stats_->reset();
@@ -69,12 +70,10 @@ void MainWindow::mousePressEvent(QMouseEvent *event) {
 		dragPosition = event->globalPos() - frameGeometry().topLeft();
 		event->accept();
 		active_index_ = -1;
-		printf("active index %d\n", active_index_);
 	}
 
 	else if (event->button() == Qt::RightButton) {
 		active_index_ = applications_get_index(event->pos());
-		printf("active index %d\n", active_index_);
 		if (active_index_ == -1) {
 			qedit_->setDisabled(true);
 			qrun_->setDisabled(true);
@@ -99,7 +98,6 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent *event) {
 	if (event->button() == Qt::LeftButton) {
 		QPoint pos = event->pos();
 		int index = applications_get_index(pos);
-		printf("run index %d\n", index);
 		if (index != -1) {
 			if (index == 0) {
 				stats_->reset();

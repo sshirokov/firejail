@@ -2,9 +2,7 @@
 #include <assert.h>
 #include "db.h"
 
-Db::Db(): cycle_(DbPid::MAXCYCLE - 1), pidlist_(0) {
-	printf("hello world!\n");
-}
+Db::Db(): cycle_(DbPid::MAXCYCLE - 1), pidlist_(0) {}
 
 void Db::newCycle() {
 	if (++cycle_ >= DbPid::MAXCYCLE)

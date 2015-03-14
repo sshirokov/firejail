@@ -19,6 +19,7 @@ StatsDialog::StatsDialog(): QDialog(), updated_(false), mode_(MODE_TOP), pid_(0)
 	layout->addWidget(procView_, 0, 0);
 	setLayout(layout);
 	resize(600, 500);
+	setWindowTitle(tr("Firejail Stats"));
 }
 
 QString StatsDialog::header() {
@@ -259,7 +260,7 @@ void StatsDialog::anchorClicked(const QUrl & link) {
 	else if (linkstr == "join") {
 		// join the process in a new xterm
 		char *cmd;
-		if (asprintf(&cmd, "xterm -T join-%d -e firejail --join=%d&", pid_, pid_) != -1) {
+		if (asprintf(&cmd, "xterm -T firejail-%d -e firejail --join=%d&", pid_, pid_) != -1) {
 			int rv = system(cmd);
 			(void) rv;
 			free(cmd);
