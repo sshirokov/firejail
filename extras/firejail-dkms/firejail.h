@@ -36,11 +36,6 @@ extern NsRule tmp_head;
 extern spinlock_t head_lock;
 #define CLEANUP_CNT 60 	// clean the list every 60 seconds
 
-// trace
-#define TRACE_MAX 60		// max value for trace_cnt, decremented every second
-extern volatile unsigned short trace_udp_port;
-extern volatile int trace_cnt;
-
 static inline NsRule *find_rule(struct nsproxy *nsproxy) {
 	NsRule *ptr;
 

@@ -46,19 +46,7 @@ static void syscall_probe(void *__data, struct pt_regs *regs, long id) {
 	ptr = find_rule(current->nsproxy);
 	if (ptr) {
 //printk(KERN_INFO "syscall proxy %p\n", current->nsproxy);
-#if 0		
-		uint64_t h = (uint64_t) current->nsproxy;
-		h >>= 4;
-		h &= 0xfff;
-		h %= 17;
-printk(KERN_INFO "firejail h = %u\n", (unsigned) h);
-#endif
-//		if (id == __NR_connect)
-			syscall_probe_connect(regs, id, ptr);
-//		else if (id == __NR_open)
-//			syscall_probe_open (regs, id);
-//		if (regs && id == __NR_socket)
-//			syscall_probe_socket(regs, id);
+		syscall_probe_connect(regs, id, ptr);
 	}
 }
 
@@ -233,23 +221,6 @@ static ssize_t firejail_write(struct file *file, const char *buffer, size_t len,
 		}
 		memcpy(&ptr->real_start_time, &current->real_start_time, sizeof(struct timespec));
 		printk(KERN_INFO "firejail: new sandbox registered, pid %d, nsproxy %p\n", ptr->sandbox_pid, ptr->nsproxy);
-	}
-	else if (sargc == 2 && strcmp(sargv[0], "trace") == 0) {
-		long val;
-
-		if (current->nsproxy != main_ns){
-			printk(KERN_INFO "firejail: cannot enable the trace from this namespace\n");
-			goto errout;
-		}
-
-		// set the port
-		val = simple_strtol(sargv[1], NULL, 10);
-		if (val <= 0 || val >= 65535) {
-			printk(KERN_INFO "firejail: invalid command\n");
-			goto errout;
-		}
-		trace_udp_port = val;
-		trace_cnt = TRACE_MAX;
 	}
 	else {
 		printk(KERN_INFO "firejail: invalid command\n");

@@ -16,10 +16,6 @@ static struct task_struct *find_pid(pid_t pid) {
 void firejail_timeout(unsigned long dummy) {
 	NsRule *ptr = head.next;
 	
-	// decrement trace
-	if (--trace_cnt < 0)
-		trace_cnt = 0;
-
 	spin_lock(&head_lock);
 	// walk the rules list and disable rules if no process left in the namespace
 	while (ptr) {

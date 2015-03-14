@@ -1,0 +1,16 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/">
+   <file>resources/chromium.png</file>
+   <file>resources/evince.png</file>
+   <file>resources/firefox.png</file>
+   <file>resources/firetool.png</file>
+   <file>resources/firestats.png</file>
+   <file>resources/icedove.png</file>
+   <file>resources/iceweasel.png</file>
+   <file>resources/midori.png</file>
+   <file>resources/opera.png</file>
+   <file>resources/thunderbird.png</file>
+   <file>resources/transmission.png</file>
+   <file>resources/vlc.png</file>
+</qresource>
+</RCC>
