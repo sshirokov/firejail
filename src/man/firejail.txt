@@ -17,108 +17,108 @@ current system directories mounted read-only, and new PID and IPC namespaces.
 If no program is specified as an argument, /bin/bash is started by default in the sandbox.
 .SH OPTIONS
 .TP
-\fB\--bind=dirname1,dirname2
+\fB\-\-bind=dirname1,dirname2
 Mount-bind dirname1 on top of dirname2. This option is only available when running as root.
 .TP
-\fB\--bind=filename1,filename2
+\fB\-\-bind=filename1,filename2
 Mount-bind filename1 on top of filename2. This option is only available when running as root.
 .TP
-\fB\--blacklist=dirname_or_filename
+\fB\-\-blacklist=dirname_or_filename
 Blacklist directory or file.
 .TP
 \fB\-c
 Execute command and exit.
 .TP
-\fB\--caps
+\fB\-\-caps
 Enable default Linux capabilities filter. The filter disables CAP_SYS_MODULE, CAP_SYS_RAWIO, CAP_SYS_BOOT, 
 CAP_SYS_NICE, CAP_SYS_TTY_CONFIG, CAP_SYSLOG, CAP_MKNOD, CAP_SYS_ADMIN.
 .TP
-\fB\--caps.drop=all
+\fB\-\-caps.drop=all
 Drop all capabilities.
 .TP
-\fB\--caps.drop=capability,capability,capability 
+\fB\-\-caps.drop=capability,capability,capability
 Blacklist Linux capabilities filter.
 .TP
-\fB\--caps.keep=capability,capability,capability 
+\fB\-\-caps.keep=capability,capability,capability
 Whitelist Linux capabilities filter.
 .TP
-\fB\--cgroup=tasks-file
+\fB\-\-cgroup=tasks-file
 Place the sandbox in the specified control group. tasks-file is the full path of cgroup tasks file.
-Example: --cgroup=/sys/fs/cgroup/g1/tasks
+Example: \-\-cgroup=/sys/fs/cgroup/g1/tasks
 .TP
-\fB\--chroot=dirname
+\fB\-\-chroot=dirname
 Chroot into dirname directory.
 .TP
-\fB\--cpu=cpu-number,cpu-number
-Set CPU affinity. Example: --cpu=0,1,2
+\fB\-\-cpu=cpu-number,cpu-number
+Set CPU affinity. Example: \-\-cpu=0,1,2
 .TP
-\fB\--csh
+\fB\-\-csh
 Use /bin/csh as default user shell.
 .TP
-\fB\--debug\fR
+\fB\-\-debug\fR
 Print debug messages.
 .TP
-\fB\--debug-syscalls
+\fB\-\-debug-syscalls
 Print all recognized system calls in the current Firejail software build and exit.
 .TP
-\fB\--debug-caps
+\fB\-\-debug-caps
 Print all recognized capabilities in the current Firejail software build and exit.
 .TP
-\fB\--defaultgw=address
+\fB\-\-defaultgw=address
 Use this address as default gateway in the new network namespace.
 .TP
-\fB\--dns=address
+\fB\-\-dns=address
 Set a DNS server for the sandbox. This option is valid only if at least one  new network interface was defined
-using --net option. Up to three DNS servers can be defined.
+using \-\-net option. Up to three DNS servers can be defined.
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Print options end exit.
 .TP
-\fB\--ip=address
+\fB\-\-ip=address
 Use this IP address in the new network namespace.
 .TP
-\fB\--ip=none
+\fB\-\-ip=none
 No IP address and no default gateway are configured in the new network namespace. Use this option
 in case you intend to start an external DHCP client in the sandbox.
 .TP
-\fB\--ipc-namespace
+\fB\-\-ipc-namespace
 Enable  a new IPC namespace if the sandbox was started as a regular user. IPC namespace is enabled by default only if
 the sandbox is started as root.
 .TP
-\fB\--join=name
-Join the sandbox started using --name option.
+\fB\-\-join=name
+Join the sandbox started using \-\-name option.
 .TP
-\fB\--join=pid
-Join the sandbox specified by pid. Use --list option to get a list of all active sandboxes.
+\fB\-\-join=pid
+Join the sandbox specified by pid. Use \-\-list option to get a list of all active sandboxes.
 .TP
-\fB\--list
+\fB\-\-list
 List all sandboxes.
 .TP
-\fB\--name=name
+\fB\-\-name=name
 Set sandbox hostname.
 .TP
-\fB\--net=bridgename
+\fB\-\-net=bridgename
 Enable a new network namespace and connect it to this bridge device.
-Unless specified with option --ip and --defaultgw, an IP address and a default gateway will be assigned
+Unless specified with option \-\-ip and \-\-defaultgw, an IP address and a default gateway will be assigned
 automatically to the sandbox. The IP address is checked using ARP before assignment. The IP address
-assigned as default gateway is the bridge device IP address. Up to four --net
+assigned as default gateway is the bridge device IP address. Up to four \-\-net
 bridge devices can be defined. Mixing bridge and macvlan devices is allowed.
 
 .TP
-\fB\--net=ethernet_interface
+\fB\-\-net=ethernet_interface
 Enable a new network namespace and connect it
 to this ethernet_interface using the standard Linux macvlan
-driver. Unless specified with option --ip and --defaultgw, an
+driver. Unless specified with option \-\-ip and \-\-defaultgw, an
 IP address and a default gateway will be assigned automatically
 to the sandbox. The IP address is checked using ARP before
 assignment. The IP address assigned as default gateway is the
-default gateway of the host. Up to four --net devices can
+default gateway of the host. Up to four \-\-net devices can
 be defined. Mixing bridge and macvlan devices is allowed.
 .TP
-\fB\--net=none
+\fB\-\-net=none
 Enable a new, unconnected network namespace.
 .TP
-\fB\--netfilter
+\fB\-\-netfilter
 Enable the default client network filter in the new network namespace:
 .br
 
@@ -131,110 +131,110 @@ Enable the default client network filter in the new network namespace:
 .br
 :OUTPUT ACCEPT [0:0]
 .br
--A INPUT -i lo -j ACCEPT
+\-A INPUT \-i lo \-j ACCEPT
 .br
--A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+\-A INPUT \-m state \-\-state RELATED,ESTABLISHED \-j ACCEPT
 .br
--A INPUT -p icmp -j ACCEPT
+\-A INPUT \-p icmp \-j ACCEPT
 .br
 COMMIT
 .TP
-\fB\--netfilter=filename 
+\fB\-\-netfilter=filename
 Enable the network filter specified by filename in the new network namespace. The filter file format
 is the format of iptables-save and iptable-restore commands.
 .TP
-\fB\--netstats
+\fB\-\-netstats
 Monitor network statistics for sandboxes creating a new network namespace.
 .TP
-\fB\--nogroups
+\fB\-\-nogroups
 Disable supplementary groups. Without this option, supplementary groups are enabled for the user starting the
 sandbox. For root user supplementary groups are always disabled.
 .TP
-\fB\--output=logfile
+\fB\-\-output=logfile
 stdout logging and log rotation. Copy stdout to logfile, and keep the size of the file under 500KB using log
 rotation. Five files with prefixes .1 to .5 are used in rotation.
 .TP
-\fB\--overlay
+\fB\-\-overlay
 Mount a filesystem overlay on top of the current filesystem. OverlayFS support is required in Linux kernel
 for this option to work.
 .TP
-\fB\--private
+\fB\-\-private
 Mount new /root and /home/user directories.
 .TP
-\fB\--private=directory
+\fB\-\-private=directory
 Use directory as user home.
 .TP
-\fB\--profile=filename
+\fB\-\-profile=filename
 Use a custom profile, see below.
 .TP
-\fB\--read-only=dirname_or_filename
+\fB\-\-read-only=dirname_or_filename
 Set directory or file read-only.
 .TP
-\fB\--rlimit-fsize=number
+\fB\-\-rlimit-fsize=number
 Set the maximum file size that can be created by a process.
 .TP
-\fB\--rlimit-nofile=number
+\fB\-\-rlimit-nofile=number
 Set the maximum number of files that can be opened by a process.
 .TP
-\fB\--rlimit-nproc=number
+\fB\-\-rlimit-nproc=number
 Set the maximum number of processes that can be created for the real user ID of the calling process.
 .TP
-\fB\--rlimit-sigpending=number
+\fB\-\-rlimit-sigpending=number
 Set the maximum number of pending signals for a process.
 .TP
-\fB\--seccomp
+\fB\-\-seccomp
 Enable seccomp filter and disable the syscalls in the default list. The default list is as follows:
 mount, umount2, ptrace, kexec_load, open_by_handle_at, init_module, finit_module, delete_module,
 iopl, ioperm, swapon, swapoff and syslog.
 .TP
-\fB\--seccomp=syscall,syscall,syscall
+\fB\-\-seccomp=syscall,syscall,syscall
 Enable seccomp filter, apply the default list and the syscalls specified by the command.
 .TP
-\fB\--seccomp=empty,syscall,syscall
+\fB\-\-seccomp=empty,syscall,syscall
 Enable seccomp filter, and apply the syscalls specified by the command. The default syscall list is not applied.
 .TP
-\fB\--shell=program
-Set default user shell. Use this shell to run the application using -c shell option.
-For example "firejail --shell=/bin/dash firefox" will start Mozilla Firefox as "/bin/dash -c firefox".
-By default Bash shell (/bin/bash) is used. Options such as --zsh and --csh can also set the default
+\fB\-\-shell=program
+Set default user shell. Use this shell to run the application using \-c shell option.
+For example "firejail \-\-shell=/bin/dash firefox" will start Mozilla Firefox as "/bin/dash \-c firefox".
+By default Bash shell (/bin/bash) is used. Options such as \-\-zsh and \-\-csh can also set the default
 shell.
 .TP
-\fB\--shutdown=name
-Shutdown the sandbox started using --name option.
+\fB\-\-shutdown=name
+Shutdown the sandbox started using \-\-name option.
 .TP
-\fB\--shutdown=pid
-Shutdown the sandbox specified by pid. Use --list option to get a list of all active sandboxes.
+\fB\-\-shutdown=pid
+Shutdown the sandbox specified by pid. Use \-\-list option to get a list of all active sandboxes.
 .TP
-\fB\--tmpfs=dirname
+\fB\-\-tmpfs=dirname
 Mount a tmpfs filesystem on directory dirname.
 .TP
-\fB\--top
+\fB\-\-top
 Monitor the most CPU-intensive sandboxes.
 .TP
-\fB\--trace
+\fB\-\-trace
 Trace open, access and connect system calls.
 .TP
-\fB\--tree
+\fB\-\-tree
 Print a tree of all sandboxed processes.
 .TP
-\fB\--version
+\fB\-\-version
 Print program version and exit.
 .TP
-\fB\--zsh
+\fB\-\-zsh
 Use /usr/bin/zsh as default user shell.
 
 .SH MONITORING
-Option --list prints a list of all sandboxes. The format
+Option \-\-list prints a list of all sandboxes. The format
 for each process entry is as follows:
 
 	PID:USER:Command
 
-Option --tree prints the tree of processes running in the sandbox. The format
+Option \-\-tree prints the tree of processes running in the sandbox. The format
 for each process entry is as follows:
 
 	PID:USER:Command
 
-Option --top is similar to the UNIX top command, however it applies only to
+Option \-\-top is similar to the UNIX top command, however it applies only to
 sandboxes. Listed below are the available fields (columns) in alphabetical
 order:
 
@@ -280,7 +280,7 @@ To configure a restricted shell, replace /bin/bash with /usr/bin/firejail in
 /etc/password file for each user that needs to be restricted. Alternatively,
 you can specify /usr/bin/firejail  in adduser command:
 
-adduser --shell /usr/bin/firejail username
+adduser \-\-shell /usr/bin/firejail username
 
 Additional arguments passed to firejail executable upon login are declared in /etc/firejail/login.users file.
 
@@ -292,28 +292,28 @@ Start a regular /bin/bash session in sandbox.
 \f\firejail firefox
 Start Mozilla Firefox.
 .TP
-\f\firejail --seccomp firefox
+\f\firejail \-\-seccomp firefox
 Start Mozilla Firefox in a seccomp sandbox.
 .TP
-\f\firejail --caps firefox
+\f\firejail \-\-caps firefox
 Start Mozilla Firefox in a Linux capabilities sandbox.
 .TP
-\f\firejail --debug firefox
+\f\firejail \-\-debug firefox
 Debug Firefox sandbox.
 .TP
-\f\firejail --private
+\f\firejail \-\-private
 Start a /bin/bash session with a new tmpfs home directory.
 .TP
-\f\firejail --net=br0 ip=10.10.20.10
+\f\firejail \-\-net=br0 ip=10.10.20.10
 Start a /bin/bash session in a new network namespace. The session is
 connected to the main network using br0 bridge device. An IP address
 of 10.10.20.10 is assigned to the sandbox.
 .TP
-\f\firejail --net=br0 --net=br1 --net=br2
+\f\firejail \-\-net=br0 \-\-net=br1 \-\-net=br2
 Start a /bin/bash session in a new network namespace and connect it
 to br0, br1, and br2 host bridge devices.
 .TP
-\f\firejail --list
+\f\firejail \-\-list
 List all sandboxed processes.
 .SH LICENSE
 This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.

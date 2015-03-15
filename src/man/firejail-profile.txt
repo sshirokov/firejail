@@ -4,7 +4,7 @@ profile \- Profile file syntax for Firejail
 
 .SH USAGE
 .TP
-firejail --profile=filename.profile
+firejail \-\-profile=filename.profile
 
 .SH DESCRIPTION
 Several Firejail command line configuration options can be passed to the program using
