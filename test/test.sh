@@ -258,6 +258,9 @@ echo "TESTING: network default gateway test 2"
 echo "TESTING: network default gateway test 3"
 ./net_defaultgw3.exp
 
+echo "TESTING: netfilter"
+./net_netfilter.exp
+
 echo "TESTING: 4 bridges ARP"
 ./4bridges_arp.exp
 

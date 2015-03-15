@@ -1,6 +1,9 @@
 firejail (0.9.23 baseline; urgency=low
   * ongoing development
   * two build patches from Reiner Herman
+  * man page patch from Reiner Herman
+  * netfilter file support in profile
+  * --caps.drop=all in default profiles
   
  -- netblue30 <netblue30@yahoo.com>  Mon, 9 Mar 2015 09:00:00 -0500
 

@@ -19,6 +19,7 @@
 */
 #include "firejail.h"
 #include <dirent.h>
+#include <sys/stat.h>
 
 #define MAX_READ 1024				  // line buffer for profile files
 
@@ -105,6 +106,21 @@ int profile_check_line(char *ptr, int lineno) {
 	}
 	else if (strcmp(ptr, "netfilter") == 0) {
 		arg_netfilter = 1;
+		return 0;
+	}
+	else if (strncmp(ptr, "netfilter ", 10) == 0) {
+		arg_netfilter = 1;
+		
+		char *fname = ptr + 10;
+		struct stat s;
+		if (stat(fname, &s) == -1) {
+			fprintf(stderr, "Error: network filter file not found\n");
+			exit(1);
+		}
+		arg_netfilter_file = strdup(fname);
+		if (!arg_netfilter_file)
+			errExit("strdup");
+		
 		return 0;
 	}
 	

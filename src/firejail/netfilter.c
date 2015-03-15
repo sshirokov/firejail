@@ -46,6 +46,7 @@ void netfilter(const char *fname) {
 		}
 				
 		filter = malloc(s.st_size + 1);	// + '\0'
+		memset(filter, 0, s.st_size + 1);
 		if (!filter)
 			errExit("malloc");
 		
@@ -64,7 +65,6 @@ void netfilter(const char *fname) {
 		allocated = 1;
 	}
 		
-
 	// mount a tempfs on top of /tmp directory
 	if (mount("tmpfs", "/tmp", "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
 		errExit("mounting /tmp");

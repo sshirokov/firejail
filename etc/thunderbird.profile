@@ -4,7 +4,7 @@ include /etc/firejail/disable-secret.inc
 blacklist ${HOME}/.adobe
 blacklist ${HOME}/.macromedia
 blacklist ${HOME}/.mozilla
-caps
+caps.drop all
 seccomp
 netfilter
 

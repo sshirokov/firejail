@@ -6,7 +6,7 @@ blacklist ${HOME}/.macromedia
 blacklist ${HOME}/.mozilla
 blacklist ${HOME}/.icedove
 blacklist ${HOME}/.thunderbird
-caps
+caps.drop all
 seccomp
 netfilter
 
