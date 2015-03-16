@@ -5,6 +5,7 @@
 #include "db.h"
 #include "graph.h"
 #include "../common/utils.h"
+#include "../../firetool_config.h"
 
 
 StatsDialog::StatsDialog(): QDialog(), updated_(false), mode_(MODE_TOP), pid_(0), pid_seccomp_(-1), pid_caps_(QString("")) {
@@ -19,21 +20,46 @@ StatsDialog::StatsDialog(): QDialog(), updated_(false), mode_(MODE_TOP), pid_(0)
 	layout->addWidget(procView_, 0, 0);
 	setLayout(layout);
 	resize(600, 500);
-	setWindowTitle(tr("Firejail Stats"));
+	setWindowTitle(tr("Firejail Tools&Stats"));
 }
 
 QString StatsDialog::header() {
-	QString msg = "<table><tr><td width=\"5\"></td><td>";
-	msg += "<a href=\"back\">Back</a>";
-	msg += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"top\">Top</a>";
-	msg += "</td></tr></table>";
+	QString msg;
+	if (mode_ == MODE_TOP) {
+		msg += "<table><tr><td width=\"5\"></td><td>";
+		msg += "<a href=\"about\">About</a>";
+		msg += "</td></tr></table>";
+	}
+	else if (mode_ == MODE_PID) {
+		msg += "<table><tr><td width=\"5\"></td><td>";
+		msg += "<a href=\"top\">Home</a>";
+		msg += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"about\">About</a>";
+		msg += "</td></tr></table>";
+	}
+	else {
+		msg += "<table><tr><td width=\"5\"></td><td>";
+		msg += "<a href=\"back\">Back</a>";
+		msg += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"top\">Home</a>";
+		msg += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"about\">About</a>";
+		msg += "</td></tr></table>";
+	}
 	
+	if (mode_ == MODE_PID || mode_ == MODE_TREE) {
+		msg += "<table><tr><td width=\"5\"></td><td>";
+		msg += "<a href=\"shut\">Shutdown</a>";
+		msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"join\">Join</a>";
+		msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"tree\">Process Tree</a>";
+		msg += "</td></tr></table>";
+	}
+
+
 	return msg;
 }
 
 void StatsDialog::updateTop() {
-	QString msg = "<table><tr>\n";
-	msg += "<td width=\"5\"></td><td width=\"60\">PID</td/><td width=\"60\">CPU(%)</td><td>Memory(KiB)&nbsp;&nbsp;</td><td>RX(KB/sec)&nbsp;&nbsp;</td><td>TX(KB/sec)&nbsp;&nbsp;</td><td>Command</td>\n";
+	QString msg = header() + "<hr>";
+	msg += "<table><tr><td width=\"5\"></td><td><b>Sandbox List</b></td></tr></table><br/>\n";
+	msg += "<table><tr><td width=\"5\"></td><td width=\"60\">PID</td/><td width=\"60\">CPU(%)</td><td>Memory(KiB)&nbsp;&nbsp;</td><td>RX(KB/sec)&nbsp;&nbsp;</td><td>TX(KB/sec)&nbsp;&nbsp;</td><td>Command</td>\n";
 	
 	int cycle = Db::instance().getCycle();
 	assert(cycle < DbPid::MAXCYCLE);
@@ -152,13 +178,7 @@ void StatsDialog::updatePid() {
 	
 	DbStorage *st = &ptr->data_[cycle];
 
-	msg += header();
-	msg += "<table><tr><td width=\"5\"></td><td>";
-	msg += "<a href=\"shut\">Shutdown</a>";
-	msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"join\">Join</a>";
-	msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"tree\">Process Tree</a>";
-	msg += "</td></tr></table><hr>";
-
+	msg += header() + "<hr>";
 	msg += "<table><tr><td width=\"5\"></td><td>Command: " + QString(cmd) + "</td></tr></table><br/>";
 
 	msg += "<table>";
@@ -252,9 +272,8 @@ void StatsDialog::anchorClicked(const QUrl & link) {
 				free(cmd);
 			}
 			QApplication::restoreOverrideCursor();	
+			mode_ = MODE_TOP;
 		}
-			
-		mode_ = MODE_TOP;
 		updated_ = false;
 	}
 	else if (linkstr == "join") {
@@ -265,9 +284,22 @@ void StatsDialog::anchorClicked(const QUrl & link) {
 			(void) rv;
 			free(cmd);
 		}
-		
-		mode_ = MODE_PID;
 		updated_ = false;
+	}
+	else if (linkstr == "about") {
+		QString msg = "<table cellpadding=\"10\"><tr><td><img src=\":/resources/firetool.png\"></td>";
+		msg += "<td>Firetool " + tr("version") + " " + PACKAGE_VERSION + "<br/><br/>";
+		msg += tr(
+			"Firejail  is  a  SUID sandbox program that reduces the risk of security "
+			"breaches by restricting the running environment of  untrusted  applications "
+			"using Linux namespaces and seccomp-bpf. Firetool is the graphical "
+			"user interface of Firejail. Firejail and Firetool are released "
+			"under GPL v2 license.<br/><br/>");
+		msg += "Copyright (C) 2014 Firejail Authors<br/><br/>";
+		msg += QString(PACKAGE_URL) + "</td></tr></table><br/><br/>";
+	
+		QMessageBox::about(this, tr("About"), msg);
+		
 	}
 	else {
 		pid_ = linkstr.toInt();

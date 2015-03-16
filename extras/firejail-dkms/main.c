@@ -11,8 +11,6 @@ static struct nsproxy *main_ns;
 NsRule head;
 NsRule tmp_head;
 DEFINE_SPINLOCK(head_lock);
-volatile unsigned short trace_udp_port = 0;
-volatile int trace_cnt = 0;
 
 #if !(LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0))
 static struct tracepoint *tp_sysenter;
@@ -101,7 +99,6 @@ static int firejail_seq_show(struct seq_file *s, void *v) {
 			ptr = ptr->next;
 		}
 				
-		seq_printf(s, "Tracing %s, UDP port %u\n", (trace_cnt)? "enabled": "disabled", trace_udp_port);
 		seq_printf(s, "Kernel rules: %d active, %d inactive\n", active, inactive);
 	}
 		
