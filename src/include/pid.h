@@ -19,7 +19,9 @@
 */
 #ifndef PID_H
 #define PID_H
-#define MAX_PIDS 32769
+//#define MAX_PIDS 65535 //32769
+extern int MAX_PIDS;
+
 
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -39,7 +41,8 @@ typedef struct {
 	unsigned rx_delta;
 	unsigned tx_delta;
 } Process;
-extern Process pids[MAX_PIDS];
+//extern Process pids[MAX_PIDS];
+extern Process *pids;
 
 // pid functions
 void pid_getmem(unsigned pid, unsigned *rss, unsigned *shared);

@@ -36,7 +36,10 @@
 #include <dirent.h>
        
 #define PIDS_BUFLEN 4096
-Process pids[MAX_PIDS];
+//Process pids[MAX_PIDS];
+Process *pids = NULL;
+int MAX_PIDS=32769;
+#define PIDS_BUFLEN 4096
 
 // get the memory associated with this pid
 void pid_getmem(unsigned pid, unsigned *rss, unsigned *shared) {
@@ -268,7 +271,21 @@ void pid_store_cpu(unsigned index, unsigned parent, unsigned *utime, unsigned *s
 
 // mon_pid: pid of sandbox to be monitored, 0 if all sandboxes are included
 void pid_read(pid_t mon_pid) {
-	memset(pids, 0, sizeof(pids));
+	if (pids == NULL) {
+		FILE *fp = fopen("/proc/sys/kernel/pid_max", "r");
+		if (fp) {
+			int val;
+			if (fscanf(fp, "%d", &val) == 1) {
+				if (val >= MAX_PIDS)
+					MAX_PIDS = val + 1;
+			}
+			fclose(fp);
+		}
+		pids = malloc(sizeof(Process) * MAX_PIDS);
+		if (pids == NULL)
+			errExit("malloc");
+	}
+	memset(pids, 0, sizeof(Process) * MAX_PIDS);
 	pid_t mypid = getpid();
 
 	DIR *dir;
