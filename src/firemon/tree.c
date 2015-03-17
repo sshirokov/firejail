@@ -31,5 +31,6 @@ void tree(pid_t pid) {
 		if (pids[i].level == 1)
 			pid_print_tree(i, 0, arg_nowrap);
 	}
+	printf("\n");
 }
 

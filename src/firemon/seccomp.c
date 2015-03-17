@@ -64,5 +64,6 @@ void seccomp(pid_t pid) {
 				print_seccomp(child);
 		}
 	}
+	printf("\n");
 }
 

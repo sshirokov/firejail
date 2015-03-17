@@ -70,10 +70,10 @@ void caps(pid_t pid);
 void seccomp(pid_t pid);
 
 // cpu.c
-void cpu(void);
+void cpu(pid_t pid);
 
 // cgroup.c
-void cgroup(void);
+void cgroup(pid_t pid);
 
 // tree.c
 void tree(pid_t pid);

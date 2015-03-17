@@ -31,6 +31,8 @@ static int arg_tree = 0;
 static int arg_interface = 0;
 static int arg_seccomp = 0;
 static int arg_caps = 0;
+static int arg_cpu = 0;
+static int arg_cgroup = 0;
 int arg_nowrap = 0;
 
 static struct termios tlocal;	// startup terminal setting
@@ -133,16 +135,15 @@ int main(int argc, char **argv) {
 			netstats();
 			return 0;
 		}
-		else if (strcmp(argv[i], "--cgroup") == 0) {
-			cgroup();
-			return 0;
-		}
-		else if (strcmp(argv[i], "--cpu") == 0) {
-			cpu();
-			return 0;
-		}
+
 
 		// cumulative options with or without a pid argument
+		else if (strcmp(argv[i], "--cgroup") == 0) {
+			arg_cgroup = 1;
+		}
+		else if (strcmp(argv[i], "--cpu") == 0) {
+			arg_cpu = 1;
+		}
 		else if (strcmp(argv[i], "--seccomp") == 0) {
 			arg_seccomp = 1;
 		}
@@ -197,18 +198,22 @@ int main(int argc, char **argv) {
 		}
 	}
 
+	if (arg_tree)
+		tree((pid_t) pid);
+	if (arg_interface)
+		interface((pid_t) pid);
 	if (arg_route)
 		route((pid_t) pid);
 	if (arg_arp)
 		arp((pid_t) pid);
-	if (arg_interface)
-		interface((pid_t) pid);
-	if (arg_tree)
-		tree((pid_t) pid);
 	if (arg_seccomp)
 		seccomp((pid_t) pid);
 	if (arg_caps)
 		caps((pid_t) pid);
+	if (arg_cpu)
+		cpu((pid_t) pid);
+	if (arg_cgroup)
+		cgroup((pid_t) pid);
 	
 	if (!arg_route && !arg_arp && !arg_interface && !arg_tree && !arg_caps && !arg_seccomp)
 		procevent((pid_t) pid); // never to return

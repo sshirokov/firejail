@@ -44,11 +44,11 @@ static void print_cgroup(int pid) {
 	free(file);
 }
 			
-void cgroup(void) {
+void cgroup(pid_t pid) {
 	if (getuid() == 0)
 		firemon_drop_privs();
 	
-	pid_read(0);	// include all processes
+	pid_read(pid);
 	
 	// print processes
 	int i;

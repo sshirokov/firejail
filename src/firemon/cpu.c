@@ -48,11 +48,11 @@ static void print_cpu(int pid) {
 	free(file);
 }
 			
-void cpu(void) {
+void cpu(pid_t pid) {
 	if (getuid() == 0)
 		firemon_drop_privs();
 	
-	pid_read(0);	// include all processes
+	pid_read(pid);
 	
 	// print processes
 	int i;

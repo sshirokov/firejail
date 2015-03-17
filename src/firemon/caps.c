@@ -64,5 +64,6 @@ void caps(pid_t pid) {
 				print_caps(child);
 		}
 	}
+	printf("\n");
 }
 
