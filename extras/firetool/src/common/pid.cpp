@@ -188,7 +188,8 @@ void pid_read(pid_t mon_pid) {
 		if (pids == NULL) 
 			errExit("malloc");
 	}
-	memset(pids, 0, sizeof(pids));
+
+	memset(pids, 0, sizeof(Process) * MAX_PIDS);
 	pid_t mypid = getpid();
 
 	DIR *dir;

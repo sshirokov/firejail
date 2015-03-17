@@ -17,16 +17,6 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-//#define _GNU_SOURCE
-//#include <stdlib.h>
-//#include <stdio.h>
-//#include <sys/stat.h>
-//#include <fcntl.h>
-//#include <string.h>
-//#include <dirent.h>
-//#include <pwd.h>
-//#include <termios.h>
-//#include <sys/ioctl.h>
 #include "../include/common.h"
 #include "../include/pid.h"
 #include <string.h>
