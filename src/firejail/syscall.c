@@ -4891,7 +4891,7 @@ static int syscall_find_name(const char *name) {
 // return 1 if error, 0 if OK
 int syscall_check_list(const char *slist, void (*callback)(int)) {
 	// don't allow empty lists
-	if (slist == NULL || *slist == '\0' || strcmp(slist, "empty") == 0 || strcmp(slist, "empty,") == 0) {
+	if (slist == NULL || *slist == '\0') {
 		fprintf(stderr, "Error: empty syscall lists are not allowed\n");
 		return -1;
 	}
@@ -4909,13 +4909,8 @@ int syscall_check_list(const char *slist, void (*callback)(int)) {
 		else if (*ptr == ',') {
 			*ptr = '\0';
 			int nr = syscall_find_name(start);
-			if (nr == -1 && strcmp(start, "empty") == 0) {
-				arg_seccomp_empty = 1;
-			}
-			else if (nr == -1) {
-				fprintf(stderr, "Error: syscall %s not found\n", start);
-				return -1;
-			}
+			if (nr == -1)
+				fprintf(stderr, "Warning: syscall %s not found\n", start);
 			else if (callback != NULL)
 				callback(nr);
 				
@@ -4925,10 +4920,8 @@ int syscall_check_list(const char *slist, void (*callback)(int)) {
 	}
 	if (*start != '\0') {
 		int nr = syscall_find_name(start);
-		if (nr == -1) {
-			fprintf(stderr, "Error: syscall %s not found\n", start);
-			return -1;
-		}
+		if (nr == -1)
+			fprintf(stderr, "Warning: syscall %s not found\n", start);
 		else if (callback != NULL)
 			callback(nr);
 	}
@@ -4942,8 +4935,7 @@ void syscall_print(void) {
 	for (i = 0; i < elems; i++) {
 		printf("%d\t- %s\n", syslist[i].nr, syslist[i].name);
 	}
+	printf("\n");
 }
-
-
 
 #endif // HAVE_SECCOMP

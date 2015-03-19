@@ -47,9 +47,10 @@ int arg_overlay = 0;				// --overlay
 int arg_zsh = 0;				// use zsh as default shell
 int arg_csh = 0;				// use csh as default shell
 
-int arg_seccomp = 0;				// enable seccomp filter
-char *arg_seccomp_list = NULL;		// optional seccomp list
-int arg_seccomp_empty = 0;			// start with an empty syscall list
+int arg_seccomp = 0;				// enable default seccomp filter
+char *arg_seccomp_list = NULL;		// optional seccomp list on top of default filter
+char *arg_seccomp_list_drop = NULL;		// seccomp drop list
+char *arg_seccomp_list_keep = NULL;		// seccomp keep list
 
 int arg_caps_default_filter = 0;			// enable default capabilities filter
 int arg_caps_drop = 0;				// drop list
@@ -275,16 +276,42 @@ int main(int argc, char **argv) {
 		// filtering
 		//*************************************
 #ifdef HAVE_SECCOMP
-		else if (strcmp(argv[i], "--seccomp") == 0)
+		else if (strcmp(argv[i], "--seccomp") == 0) {
+			if (arg_seccomp) {
+				fprintf(stderr, "Error: seccomp already enabled\n");
+				exit(1);
+			}
 			arg_seccomp = 1;
+		}
 		else if (strncmp(argv[i], "--seccomp=", 10) == 0) {
+			if (arg_seccomp) {
+				fprintf(stderr, "Error: seccomp already enabled\n");
+				exit(1);
+			}
 			arg_seccomp = 1;
 			arg_seccomp_list = strdup(argv[i] + 10);
 			if (!arg_seccomp_list)
 				errExit("strdup");
-			// verify seccomp list and exit if problems
-			if (syscall_check_list(arg_seccomp_list, NULL))
-				return 1;
+		}
+		else if (strncmp(argv[i], "--seccomp.drop=", 15) == 0) {
+			if (arg_seccomp) {
+				fprintf(stderr, "Error: seccomp already enabled\n");
+				exit(1);
+			}
+			arg_seccomp = 1;
+			arg_seccomp_list_drop = strdup(argv[i] + 15);
+			if (!arg_seccomp_list_drop)
+				errExit("strdup");
+		}
+		else if (strncmp(argv[i], "--seccomp.keep=", 15) == 0) {
+			if (arg_seccomp) {
+				fprintf(stderr, "Error: seccomp already enabled\n");
+				exit(1);
+			}
+			arg_seccomp = 1;
+			arg_seccomp_list_keep = strdup(argv[i] + 15);
+			if (!arg_seccomp_list_keep)
+				errExit("strdup");
 		}
 #endif		
 		else if (strcmp(argv[i], "--caps") == 0)

@@ -90,11 +90,20 @@ struct seccomp_data {
 
 #define EXAMINE_SYSCALL BPF_STMT(BPF_LD+BPF_W+BPF_ABS,	\
 		 (offsetof(struct seccomp_data, nr)))
+
 #define BLACKLIST(syscall_nr)	\
 	BPF_JUMP(BPF_JMP+BPF_JEQ+BPF_K, syscall_nr, 0, 1),	\
 	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_KILL)
 
-#define RETURN_ALLOW BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW)
+#define WHITELIST(syscall_nr) \
+	BPF_JUMP(BPF_JMP+BPF_JEQ+BPF_K, syscall_nr, 0, 1), \
+	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW)
+
+#define RETURN_ALLOW \
+	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW)
+
+#define KILL_PROCESS \
+	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_KILL)
 
 #define SECSIZE 128 // initial filter size
 static struct sock_filter *sfilter = NULL;
@@ -130,11 +139,19 @@ void filter_debug(void) {
 		// minimal parsing!
 		unsigned char *ptr = (unsigned char *) &sfilter[i];
 		int *nr = (int *) (ptr + 4);
-		if (*ptr	== 0x15) {
+		if (*ptr	== 0x15 && *(ptr +14) == 0xff && *(ptr + 15) == 0x7f ) {
+			printf("  WHITELIST %d %s\n", *nr, syscall_find_nr(*nr));
+			i += 2;
+		}
+		else if (*ptr	== 0x15 && *(ptr +14) == 0 && *(ptr + 15) == 0) {
 			printf("  BLACKLIST %d %s\n", *nr, syscall_find_nr(*nr));
 			i += 2;
 		}
-		else if (*ptr == 0x06) {
+		else if (*ptr == 0x06 && *(ptr +6) == 0 && *(ptr + 7) == 0 ) {
+			printf("  KILL_PROCESS\n");
+			i++;
+		}
+		else if (*ptr == 0x06 && *(ptr +6) == 0xff && *(ptr + 7) == 0x7f ) {
 			printf("  RETURN_ALLOW\n");
 			i++;
 		}
@@ -189,7 +206,33 @@ static void filter_realloc(void) {
 	sfilter_alloc_size += SECSIZE;
 }
 
-static void filter_add(int syscall) {
+static void filter_add_whitelist(int syscall) {
+	assert(sfilter);
+	assert(sfilter_alloc_size);
+	assert(sfilter_index);
+	if (arg_debug)
+		printf("Whitelisting syscall %d %s\n", syscall, syscall_find_nr(syscall));
+	
+	if ((sfilter_index + 2) > sfilter_alloc_size)
+		filter_realloc();
+	
+	struct sock_filter filter[] = {
+		WHITELIST(syscall)
+	};
+#if 0
+{
+	int i;
+	unsigned char *ptr = (unsigned char *) &filter[0];
+	for (i = 0; i < sizeof(filter); i++, ptr++)
+		printf("%x, ", (*ptr) & 0xff);
+	printf("\n");
+}
+#endif
+	memcpy(&sfilter[sfilter_index], filter, sizeof(filter));
+	sfilter_index += sizeof(filter) / sizeof(struct sock_filter);	
+}
+
+static void filter_add_blacklist(int syscall) {
 	assert(sfilter);
 	assert(sfilter_alloc_size);
 	assert(sfilter_index);
@@ -215,7 +258,7 @@ static void filter_add(int syscall) {
 	sfilter_index += sizeof(filter) / sizeof(struct sock_filter);	
 }
 
-static void filter_end(void) {
+static void filter_end_blacklist(void) {
 	assert(sfilter);
 	assert(sfilter_alloc_size);
 	assert(sfilter_index);
@@ -227,6 +270,32 @@ static void filter_end(void) {
 	
 	struct sock_filter filter[] = {
 		RETURN_ALLOW
+	};
+#if 0	
+{
+	int i;
+	unsigned char *ptr = (unsigned char *) &filter[0];
+	for (i = 0; i < sizeof(filter); i++, ptr++)
+		printf("%x, ", (*ptr) & 0xff);
+	printf("\n");
+}
+#endif
+	memcpy(&sfilter[sfilter_index], filter, sizeof(filter));
+	sfilter_index += sizeof(filter) / sizeof(struct sock_filter);	
+}
+
+static void filter_end_whitelist(void) {
+	assert(sfilter);
+	assert(sfilter_alloc_size);
+	assert(sfilter_index);
+	if (arg_debug)
+		printf("Ending syscall filter\n");
+
+	if ((sfilter_index + 2) > sfilter_alloc_size)
+		filter_realloc();
+	
+	struct sock_filter filter[] = {
+		KILL_PROCESS
 	};
 #if 0	
 {
@@ -308,44 +377,55 @@ static void read_seccomp_file(void) {
 
 	close(fd);
 	free(fname);
+	
+	if (arg_debug)
+		filter_debug();
 }
 
-// enabled only for --seccomp option
-int seccomp_filter(void) {
+
+// drop filter for seccomp option
+int seccomp_filter_drop(void) {
 	filter_init();
-	if (arg_seccomp_empty) {
-		if (arg_debug)
-			printf("Default seccomp list not included\n");
-	}
-	else {
-		filter_add(SYS_mount);
-		filter_add(SYS_umount2);
-		filter_add(SYS_ptrace);
-		filter_add(SYS_kexec_load);
-		filter_add(SYS_open_by_handle_at);
-		filter_add(SYS_init_module);
+	
+	// default seccomp
+	if (arg_seccomp_list_drop == NULL) {
+		filter_add_blacklist(SYS_mount);
+		filter_add_blacklist(SYS_umount2);
+		filter_add_blacklist(SYS_ptrace);
+		filter_add_blacklist(SYS_kexec_load);
+		filter_add_blacklist(SYS_open_by_handle_at);
+		filter_add_blacklist(SYS_init_module);
 #ifdef SYS_finit_module // introduced in 2013
-		filter_add(SYS_finit_module);
+		filter_add_blacklist(SYS_finit_module);
 #endif
-		filter_add(SYS_delete_module);
-		filter_add(SYS_iopl);
-		filter_add(SYS_ioperm);
-		filter_add(SYS_swapon);
-		filter_add(SYS_swapoff);
-		filter_add(SYS_syslog);
-		filter_add(SYS_process_vm_readv);
-		filter_add(SYS_process_vm_writev);
-		filter_add(SYS_mknod);
+		filter_add_blacklist(SYS_delete_module);
+		filter_add_blacklist(SYS_iopl);
+		filter_add_blacklist(SYS_ioperm);
+		filter_add_blacklist(SYS_swapon);
+		filter_add_blacklist(SYS_swapoff);
+		filter_add_blacklist(SYS_syslog);
+		filter_add_blacklist(SYS_process_vm_readv);
+		filter_add_blacklist(SYS_process_vm_writev);
+		filter_add_blacklist(SYS_mknod);
 	}
-	if (arg_seccomp_list) {
-		if (syscall_check_list(arg_seccomp_list, filter_add)) {
+
+	// default seccomp filter with additional drop list
+	if (arg_seccomp_list && arg_seccomp_list_drop == NULL) {
+		if (syscall_check_list(arg_seccomp_list, filter_add_blacklist)) {
+			fprintf(stderr, "Error: cannot load seccomp filter\n");
+			exit(1);
+		}
+	}
+	// drop list
+	else if (arg_seccomp_list == NULL && arg_seccomp_list_drop) {
+		if (syscall_check_list(arg_seccomp_list_drop, filter_add_blacklist)) {
 			fprintf(stderr, "Error: cannot load seccomp filter\n");
 			exit(1);
 		}
 	}
 	
 	
-	filter_end();
+	filter_end_blacklist();
 	if (arg_debug)
 		filter_debug();
 
@@ -369,6 +449,45 @@ int seccomp_filter(void) {
 	
 	return 0;
 }
+
+// keep filter for seccomp option
+int seccomp_filter_keep(void) {
+	filter_init();
+	
+	// apply keep list
+	if (arg_seccomp_list_keep) {
+		if (syscall_check_list(arg_seccomp_list_keep, filter_add_whitelist)) {
+			fprintf(stderr, "Error: cannot load seccomp filter\n");
+			exit(1);
+		}
+	}
+	
+	filter_end_whitelist();
+	if (arg_debug)
+		filter_debug();
+
+	// save seccomp filter in  /tmp/firejail/mnt/seccomp
+	// in order to use it in --join operations
+	write_seccomp_file();
+
+
+	struct sock_fprog prog = {
+		.len = sfilter_index,
+		.filter = sfilter,
+	};
+
+	if (prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, &prog) || prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0)) {
+		fprintf(stderr, "Warning: seccomp disabled, it requires a Linux kernel version 3.5 or newer.\n");
+		return 1;
+	}
+	else if (arg_debug) {
+		printf("seccomp enabled\n");
+	}
+	
+	return 0;
+}
+
+
 
 void seccomp_set(void) {
 	// read seccomp filter from  /tmp/firejail/mnt/seccomp

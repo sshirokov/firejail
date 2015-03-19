@@ -20,7 +20,7 @@ svn: '/home/netblue/work/firejail-sf/program' is not under version control
 parent is shutting down, bye...
 
 * in overlay mode "sudo su -" doesn't work
-etblue@ubuntu:~/work/firejail-sf$ firejail --overlay
+netblue@ubuntu:~/work/firejail-sf$ firejail --overlay
 Parent pid 4173, child pid 4174
 Error: failed to unmount /sys
 Interface           IP                  Mask                Status              
@@ -216,56 +216,4 @@ http://www.jwz.org/xscreensaver/toolkits.html
 
 * nice explanation of chmod g+s: http://www.library.yale.edu/wsg/docs/permissions/sgid.htm
 
-* nginx capabilities
-
-# firejail --debug-caps
-0	- chown
-1	- dac_override
-2	- dac_read_search
-3	- fowner
-4	- fsetid
-5	- kill
-6	- setgid
-7	- setuid
-8	- setpcap
-9	- linux_immutable
-10	- net_bind_service
-11	- net_broadcast
-12	- net_admin
-[...]
-
-# firejail --caps.drop=all "/etc/init.d/nginx start && sleep inf"
-Parent pid 5929, child pid 5930
-Interface           IP                  Mask                Status              
-lo                  127.0.0.1           255.0.0.0           UP                  
-eth0                192.168.1.60        255.255.255.0       UP                  
-
-Child process initialized
-Starting nginx: nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: [emerg] chown("/var/lib/nginx/body", 33) failed (1: Operation not permitted)
-nginx: configuration file /etc/nginx/nginx.conf test failed
-
-parent is shutting down, bye...
-
-# firejail --caps.keep=chown,net_bind_service,setgid,setuid --seccomp "/etc/init.d/nginx start && sleep inf"
-Parent pid 5937, child pid 5938
-Interface           IP                  Mask                Status              
-lo                  127.0.0.1           255.0.0.0           UP                  
-eth0                192.168.1.60        255.255.255.0       UP                  
-
-Child process initialized
-Starting nginx: nginx.
-
-nginx web server
-# firejail --caps.keep=chown,net_bind_service,setgid,setuid --seccomp "/etc/init.d/nginx start && sleep inf"
-apache web server
-# firejail --caps.keep=chown,sys_resource,net_bind_service,setuid,setgid --seccomp "/etc/init.d/apache2 start && sleep inf"
-net-snmp server
-# firejail --caps.keep=net_bind_service,setuid,setgid --seccomp "/etc/init.d/snmpd start && sleep inf"
-# firejail --caps.keep=net_bind_service,setuid,setgid --seccomp "/usr/sbin/snmptrapd start && sleep inf"
-ISC DHCP server
-# firejail --caps.keep=net_bind_service,net_raw --seccomp "/etc/init.d/isc-dhcp-server start && sleep inf"
-
-VNC server (started as regular user)
-$ firejail --caps.drop=all --seccomp /usr/lib/vino/vino-server
 

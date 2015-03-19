@@ -140,9 +140,17 @@ int sandbox(void* sandbox_arg) {
 		fs_chroot(cfg.chrootdir);
 		// force caps and seccomp if not started as root
 		if (getuid() != 0) {
-			// force seccomp inside the chroot
+			// force default seccomp inside the chroot, no keep or drop list
+			// the list build on top of the default drop list is kept intact
 			arg_seccomp = 1;
-			arg_seccomp_empty = 0; // force the default syscall list in case the user disabled it
+			if (arg_seccomp_list_drop) {
+				free(arg_seccomp_list_drop);
+				arg_seccomp_list_drop = NULL;
+			}
+			if (arg_seccomp_list_keep) {
+				free(arg_seccomp_list_keep);
+				arg_seccomp_list_keep = NULL;
+			}
 			
 			// disable all capabilities
 			if (arg_caps_default_filter || arg_caps_list)
@@ -292,8 +300,13 @@ int sandbox(void* sandbox_arg) {
 
 	// set seccomp
 #ifdef HAVE_SECCOMP
-	if (arg_seccomp == 1)
-		seccomp_filter(); // this will also save the filter to MNT_DIR/seccomp file
+	// if a keep list is available, disregard the drop list
+	if (arg_seccomp == 1) {
+		if (arg_seccomp_list_keep)
+			seccomp_filter_keep(); // this will also save the filter to MNT_DIR/seccomp file
+		else
+			seccomp_filter_drop(); // this will also save the filter to MNT_DIR/seccomp file
+	}
 #endif
 
 	// set cpu affinity

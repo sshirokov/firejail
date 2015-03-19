@@ -21,7 +21,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
-#define MAX_READ 1024				  // line buffer for profile files
+#define MAX_READ 8192				  // line buffer for profile files
 
 // find and read the profile specified by name from dir directory
 int profile_find(const char *name, const char *dir) {
@@ -124,16 +124,35 @@ int profile_check_line(char *ptr, int lineno) {
 		return 0;
 	}
 	
-	// seccomp list
+	// seccomp drop list on top of default list
 	if (strncmp(ptr, "seccomp ", 8) == 0) {
 		arg_seccomp = 1;
 #ifdef HAVE_SECCOMP
 		arg_seccomp_list = strdup(ptr + 8);
 		if (!arg_seccomp_list)
 			errExit("strdup");
-		// verify seccomp list and exit if problems
-		if (syscall_check_list(arg_seccomp_list, NULL))
-			exit(1);
+#endif
+		return 0;
+	}
+	
+	// seccomp drop list without default list
+	if (strncmp(ptr, "seccomp.drop ", 13) == 0) {
+		arg_seccomp = 1;
+#ifdef HAVE_SECCOMP
+		arg_seccomp_list_drop = strdup(ptr + 13);
+		if (!arg_seccomp_list_drop)
+			errExit("strdup");
+#endif
+		return 0;
+	}
+
+	// seccomp keep list
+	if (strncmp(ptr, "seccomp.keep ", 13) == 0) {
+		arg_seccomp = 1;
+#ifdef HAVE_SECCOMP
+		arg_seccomp_list_keep= strdup(ptr + 13);
+		if (!arg_seccomp_list_keep)
+			errExit("strdup");
 #endif
 		return 0;
 	}

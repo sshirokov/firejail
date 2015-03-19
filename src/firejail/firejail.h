@@ -107,9 +107,10 @@ extern int arg_overlay;		// --overlay
 extern int arg_zsh;		// use zsh as default shell
 extern int arg_csh;		// use csh as default shell
 
-extern int arg_seccomp;	// enable seccomp filter
-extern char *arg_seccomp_list;//  optional seccomp list
-extern int arg_seccomp_empty;// start with an empty syscall list
+extern int arg_seccomp;	// enable default seccomp filter
+extern char *arg_seccomp_list;//  optional seccomp list on top of default filter
+extern char *arg_seccomp_list_drop;		// seccomp drop list
+extern char *arg_seccomp_list_keep;		// seccomp keep list
 
 extern int arg_caps_default_filter;	// enable default capabilities filter
 extern int arg_caps_drop;		// drop list
@@ -256,7 +257,8 @@ void fs_copy_xauthority(void);
 void fs_mount_xauthority(void);
 
 // seccomp.c
-int seccomp_filter(void);
+int seccomp_filter_drop(void);
+int seccomp_filter_keep(void);
 void seccomp_set(void);
 
 // caps.c
