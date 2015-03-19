@@ -1,1 +1,1 @@
-seccomp empty,chmod,fchmod,fchmodat
+seccomp.drop chmod,fchmod,fchmodat

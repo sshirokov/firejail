@@ -60,7 +60,7 @@ expect {
 }
 expect {
 	timeout {puts "TESTING ERROR 6.2\n";exit}
-	"bf31cffff"
+	"0000000000000000"
 }
 expect {
 	timeout {puts "TESTING ERROR 6.3\n";exit}

@@ -1,1 +1,1 @@
-seccomp empty,
+seccomp.drop

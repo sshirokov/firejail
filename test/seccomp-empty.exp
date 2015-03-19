@@ -42,7 +42,7 @@ send -- "exit\r"
 sleep 3
 puts "\n"
 
-send --  "firejail --debug --seccomp=empty,chmod,fchmod,fchmodat --private\r"
+send --  "firejail --debug --seccomp.drop=chmod,fchmod,fchmodat --private\r"
 expect {
 	timeout {puts "TESTING ERROR 1\n";exit}
 	"VALIDATE_ARCHITECTURE"
