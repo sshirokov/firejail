@@ -17,6 +17,13 @@ echo "TESTING: list"
 echo "TESTING: tree"
 ./option_tree.exp
 
+echo "TESTING: doubledash"
+mkdir -- -testdir
+touch -- -testdir/ttt
+cp -- /bin/bash -testdir/.
+./doubledash.exp
+rm -fr -- -testdir
+
 echo "TESTING: trace1"
 ./option-trace.exp
 

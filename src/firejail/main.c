@@ -68,6 +68,7 @@ int arg_nodbus = 0;				// kill the program if D-Bus is accessed
 int arg_nogroups = 0;				// disable supplementary groups
 int arg_netfilter;				// enable netfilter
 char *arg_netfilter_file = NULL;			// netfilter file
+int arg_doubledash = 0;			// double dash
 
 int fds[2];					// parent-child communication pipe
 char *fullargv[MAX_ARGS];			// expanded argv for restricted shell
@@ -640,6 +641,18 @@ int main(int argc, char **argv) {
 				fprintf(stderr, "Error: option -c requires an argument\n");
 				return 1;
 			}
+		}
+		else if (strcmp(argv[i], "--") == 0) {
+			// double dash - positional params to follow
+			arg_doubledash = 1;
+			i++;
+			if (i  >= argc) {
+				fprintf(stderr, "Error: program name not found\n");
+				exit(1);
+			}
+			extract_command_name(argv[i]);
+			prog_index = i;
+			break;
 		}
 		else {
 			// is this an invalid option?

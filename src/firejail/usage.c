@@ -30,6 +30,7 @@ void usage(void) {
 	printf("namespaces. If no program is specified as an argument, /bin/bash is started by\n");
 	printf("default in the sandbox.\n\n");
 	printf("Options:\n");
+	printf("\t-- - signal the end of options and disables further option processing.\n\n");
 #ifdef HAVE_BIND		
 	printf("\t--bind=dirname1,dirname2 - mount-bind dirname1 on top of dirname2.\n\n");
 	printf("\t--bind=filename1,dirname2 - mount-bind filename1 on top of filename2.\n\n");

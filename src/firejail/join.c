@@ -33,8 +33,16 @@ static void extract_command(int argc, char **argv, int index) {
 	if (index >= argc)
 		return;
 
+	// doubledash followed by positional parameters
+	if (strcmp(argv[index], "--") == 0) {
+		arg_doubledash = 1;
+		index++;
+		if (index >= argc)
+			return;
+	}
+		
 	// first argv needs to be a valid command
-	if (*argv[index] == '-') {
+	if (arg_doubledash == 0 && *argv[index] == '-') {
 		fprintf(stderr, "Error: invalid option %s after --join\n", argv[index]);
 		exit(1);
 	}
@@ -265,19 +273,41 @@ void join(pid_t pid, const char *homedir, int argc, char **argv, int index) {
 			execlp("/bin/bash", "/bin/bash", NULL);
 		else {
 			// run the command supplied by the user
+			int cwd = 0;
+			if (cfg.cwd) {
+				if (chdir(cfg.cwd) == 0)
+					cwd = 1;
+			}
+			
+			if (!cwd) {
+				if (chdir("/") < 0)
+					errExit("chdir");
+				if (cfg.homedir) {
+					struct stat s;
+					if (stat(cfg.homedir, &s) == 0) {
+						if (chdir(cfg.homedir) < 0)
+							errExit("chdir");
+					}
+				}
+			}
 
-
-			char *arg[4];
+			char *arg[5];
 			arg[0] = "/bin/bash";
 			arg[1] = "-c";
 			if (arg_debug)
 				printf("Starting %s\n", cfg.command_line);
-			arg[2] = cfg.command_line;
-			arg[3] = NULL;
+			if (!arg_doubledash) {
+				arg[2] = cfg.command_line;
+				arg[3] = NULL;
+			}
+			else {
+				arg[2] = "--";
+				arg[3] = cfg.command_line;
+				arg[4] = NULL;
+			}
 			execvp("/bin/bash", arg);
 		}
 
-//		execlp("/bin/bash", "/bin/bash", NULL);
 		// it will never get here!!!
 	}
 

@@ -334,15 +334,22 @@ int sandbox(void* sandbox_arg) {
 	else
 		sh = "/bin/bash";
 		
-	char *arg[4];
+	char *arg[5];
 	arg[0] = sh;
 	arg[1] = "-c";
 	assert(cfg.command_line);
 	if (arg_debug)
 		printf("Starting %s\n", cfg.command_line);
-	arg[2] = cfg.command_line;
-	arg[3] = NULL;
-
+	if (!arg_doubledash) {
+		arg[2] = cfg.command_line;
+		arg[3] = NULL;
+	}
+	else {
+		arg[2] = "--";
+		arg[3] = cfg.command_line;
+		arg[4] = NULL;
+	}
+	
 	if (!arg_command)
 		printf("Child process initialized\n");
 	if (arg_debug) {

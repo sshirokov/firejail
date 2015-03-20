@@ -216,12 +216,84 @@ http://www.jwz.org/xscreensaver/toolkits.html
 
 * nice explanation of chmod g+s: http://www.library.yale.edu/wsg/docs/permissions/sgid.htm
 
-* double dash
-a double dash (--) is used in bash built-in commands and many other commands to signify
-the end of command options, after which only positional parameters are accepted.
+* HOST stats
+        if ((f=fopen("/proc/stat", "r" ))==NULL) {
+209                 RETURN_WITH_SET_ERROR_WITH_ERRNO("cpu", SG_ERROR_OPEN, "/proc/stat");
+210         }
+211
+212         while( ( fgets(line, sizeof(line), f) != NULL ) && (matched < 4) ) {
+213                 if( ( ( strncmp( line, "cpu", strlen("cpu" ) ) == 0 ) && isblank(line[strlen("cpu")]) ) ) {
+214                         /* The very first line should be cpu */
+215                         proc_stat_cpu = sscanf(line, "cpu %llu %llu %llu %llu %llu",
+216                                 &cpu_stats_buf->user,
+217                                 &cpu_stats_buf->nice,
+218                                 &cpu_stats_buf->kernel,
+219                                 &cpu_stats_buf->idle,
+220                                 &cpu_stats_buf->iowait);
+221 
 
-accepts -- to signify the end of the options. 
+       cpu_stats_buf->total = cpu_stats_buf->user + cpu_stats_buf->nice + cpu_stats_buf->kernel + cpu_stats_buf->idle;
+ 
 
-A -- signals the end of options and disables further option processing. 
-Any arguments after the -- are treated as file‐ names and arguments. An argument of - is equivalent to --
 
+
+sg_get_cpu_percents_int(sg_cpu_percents *cpu_percent_buf, const sg_cpu_stats *cpu_stats_buf){
+ cpu_percent_buf->user =  ((double)cpu_stats_buf->user) / ((double)cpu_stats_buf->total) * 100;
+440         cpu_percent_buf->kernel =  ((double)cpu_stats_buf->kernel) / ((double)cpu_stats_buf->total) * 100;
+441         cpu_percent_buf->idle = ((double)cpu_stats_buf->idle) / ((double)cpu_stats_buf->total) * 100;
+442         cpu_percent_buf->iowait = ((double)cpu_stats_buf->iowait) / ((double)cpu_stats_buf->total) * 100;
+443         cpu_percent_buf->swap = ((double)cpu_stats_buf->swap) / ((double)cpu_stats_buf->total) * 100;
+444         cpu_percent_buf->nice = ((double)cpu_stats_buf->nice) / ((double)cpu_stats_buf->total) * 100;
+ 
+ 
+ cpu — Measures the number of jiffies (1/100 of a second for x86 systems) that the system has been in user mode,
+ user mode with low priority (nice), system mode, idle task, I/O wait, IRQ (hardirq), and softirq respectively. 
+ 
+ 
+ double LxQtCpuLoad::getLoadCpu() const
+{
+#ifdef STATGRAB_NEWER_THAN_0_90
+size_t count;
+sg_cpu_percents* cur = sg_get_cpu_percents(&count);
+#else
+sg_cpu_percents* cur = sg_get_cpu_percents();
+#endif
+return (cur->user + cur->kernel + cur->nice);
+}
+ 
+ 
+ 
+         if ((f = fopen("/proc/meminfo", "r")) == NULL) {
+214                 RETURN_WITH_SET_ERROR_WITH_ERRNO("mem", SG_ERROR_OPEN, "/proc/meminfo");
+215         }
+216
+217 #define MEM_TOTAL_PREFIX        "MemTotal:"
+218 #define MEM_FREE_PREFIX         "MemFree:"
+219 #define MEM_CACHED_PREFIX       "Cached:"
+220
+221         while ((line_ptr = fgets(line_buf, sizeof(line_buf), f)) != NULL) {
+222                 if ( sscanf(line_buf, "%*s %lld kB", &value) != 1)
+223                         continue;
+224
+225                 if (strncmp(line_buf, MEM_TOTAL_PREFIX, sizeof(MEM_TOTAL_PREFIX) - 1) == 0)
+226                         mem_stats_buf->total = value;
+227                 else if (strncmp(line_buf, MEM_FREE_PREFIX, sizeof(MEM_FREE_PREFIX) - 1) == 0)
+228                         mem_stats_buf->free = value;
+229                 else if (strncmp(line_buf, MEM_CACHED_PREFIX, sizeof(MEM_CACHED_PREFIX) - 1) == 0)
+230                         mem_stats_buf->cache = value;
+231         }
+232
+233         mem_stats_buf->free += mem_stats_buf->cache;
+234
+235         mem_stats_buf->total *= 1024;
+236         mem_stats_buf->free *= 1024;
+237         mem_stats_buf->cache *= 1024;
+238
+239 #undef MEM_TOTAL_PREFIX
+240 #undef MEM_FREE_PREFIX
+241 #undef MEM_CACHED_PREFIX
+242
+243         fclose(f);
+244         mem_stats_buf->used = mem_stats_buf->total - mem_stats_buf->free;
+
+       
