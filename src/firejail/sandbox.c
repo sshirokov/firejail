@@ -323,43 +323,69 @@ int sandbox(void* sandbox_arg) {
 	save_nogroups();
 	drop_privs(arg_nogroups);
 
-	// set the shell
-	char *sh;
-	if (cfg.shell)
- 		sh = cfg.shell;
-	else if (arg_zsh)
-		sh = "/usr/bin/zsh";
-	else if (arg_csh)
-		sh = "/bin/csh";
-	else
-		sh = "/bin/bash";
-		
-	char *arg[5];
-	arg[0] = sh;
-	arg[1] = "-c";
-	assert(cfg.command_line);
-	if (arg_debug)
-		printf("Starting %s\n", cfg.command_line);
-	if (!arg_doubledash) {
-		arg[2] = cfg.command_line;
-		arg[3] = NULL;
+
+	//****************************************
+	// start the program without using a shell
+	//****************************************
+	if (arg_shell_none) {
+		if (arg_debug) {
+			int i;
+			for (i = cfg.original_program_index; i < cfg.original_argc; i++) {
+				if (cfg.original_argv[i] == NULL)
+					break;
+				printf("execvp argument %d: %s\n", i - cfg.original_program_index, cfg.original_argv[i]);
+			}
+		}
+		fflush(0);
+		execvp(cfg.original_argv[cfg.original_program_index], &cfg.original_argv[cfg.original_program_index + 1]);
 	}
+	//****************************************
+	// start the program using a shell
+	//****************************************
 	else {
-		arg[2] = "--";
-		arg[3] = cfg.command_line;
-		arg[4] = NULL;
+		// choose the shell requested by the user, or use bash as default
+		char *sh;
+		if (cfg.shell)
+	 		sh = cfg.shell;
+		else if (arg_zsh)
+			sh = "/usr/bin/zsh";
+		else if (arg_csh)
+			sh = "/bin/csh";
+		else
+			sh = "/bin/bash";
+			
+		char *arg[5];
+		int index = 0;
+		arg[index++] = sh;
+		arg[index++] = "-c";
+		assert(cfg.command_line);
+		if (arg_debug)
+			printf("Starting %s\n", cfg.command_line);
+		if (arg_doubledash) 
+			arg[index++] = "--";
+		arg[index++] = cfg.command_line;
+		arg[index] = NULL;
+		assert(index < 5);
+		
+		if (arg_debug) {
+			char *msg;
+			if (asprintf(&msg, "child pid %s, execvp into %s", childstr, cfg.command_line) == -1)
+				errExit("asprintf");
+			logmsg(msg);
+			free(msg);
+		}
+		
+		if (arg_debug) {
+			int i;
+			for (i = 0; i < 5; i++) {
+				if (arg[i] == NULL)
+					break;
+				printf("execvp argument %d: %s\n", i, arg[i]);
+			}
+		}
+		execvp(sh, arg);
 	}
 	
-	if (!arg_command)
-		printf("Child process initialized\n");
-	if (arg_debug) {
-		char *msg;
-		if (asprintf(&msg, "child pid %s, execvp into %s", childstr, cfg.command_line) == -1)
-			errExit("asprintf");
-		logmsg(msg);
-		free(msg);
-	}
-	execvp(sh, arg); 
 
 	perror("execvp");
 	return 0;

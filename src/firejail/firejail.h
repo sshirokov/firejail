@@ -90,6 +90,9 @@ typedef struct config_t {
 	char *command_line;
 	char *command_name;
 	char *shell;
+	char **original_argv;
+	int original_argc;
+	int original_program_index;
 } Config;
 extern Config cfg;
 
@@ -129,6 +132,7 @@ extern int arg_nogroups;	// disable supplementary groups
 extern int arg_netfilter;	// enable netfilter
 extern char *arg_netfilter_file;	// netfilter file
 extern int arg_doubledash;	// double dash
+extern int arg_shell_none;	// run the program directly without a shell
 extern int fds[2];
 
 #define MAX_ARGS 128		// maximum number of command arguments (argc)

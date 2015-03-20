@@ -142,6 +142,7 @@ void usage(void) {
 	printf("\t\tthe syscalls specified by the command. The default syscall list\n");
 	printf("\t\tis not applied.\n\n");
 #endif
+	printf("\t--shell=none - run the program directly without a user shell.\n\n");
 	printf("\t--shell=program - set default user shell.\n\n");
 	printf("\t--shutdown=name - shutdown the sandbox started using --name option.\n\n");
 	printf("\t--shutdown=pid - shutdown the sandbox specified by pid.\n\n");

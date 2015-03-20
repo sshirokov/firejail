@@ -69,6 +69,7 @@ int arg_nogroups = 0;				// disable supplementary groups
 int arg_netfilter;				// enable netfilter
 char *arg_netfilter_file = NULL;			// netfilter file
 int arg_doubledash = 0;			// double dash
+int arg_shell_none = 0;			// run the program directly without a shell
 
 int fds[2];					// parent-child communication pipe
 char *fullargv[MAX_ARGS];			// expanded argv for restricted shell
@@ -176,6 +177,9 @@ int main(int argc, char **argv) {
 	
 	// initialize globals
 	init_cfg();
+	cfg.original_argv = argv;
+	cfg.original_argc = argc;
+	
 
 	// initialize random number generator
 	const pid_t mypid = getpid();
@@ -545,11 +549,6 @@ int main(int argc, char **argv) {
 			}
 			net_configure_bridge(br, argv[i] + 6);
 		}
-//TODO: remove --noip message after a few releases
-		else if (strcmp(argv[i], "--noip") == 0) {
-			fprintf(stderr, "Error: --noip option is deprecated. Please use --ip=none\n");
-			return 1;
-		}
 		else if (strncmp(argv[i], "--ip=", 5) == 0) {
 			Bridge *br = last_bridge_configured();
 			if (br == NULL) {
@@ -609,6 +608,10 @@ int main(int argc, char **argv) {
 		// command
 		//*************************************
 		else if (strcmp(argv[i], "--csh") == 0) {
+			if (arg_shell_none) {
+				fprintf(stderr, "Error: --shell=none was already specified.\n");
+				return 1;
+			}
 			if (arg_zsh || cfg.shell ) {
 				fprintf(stderr, "Error: only one default user shell can be specified\n");
 				return 1;
@@ -616,15 +619,30 @@ int main(int argc, char **argv) {
 			arg_csh = 1;
 		}
 		else if (strcmp(argv[i], "--zsh") == 0) {
+			if (arg_shell_none) {
+				fprintf(stderr, "Error: --shell=none was already specified.\n");
+				return 1;
+			}
 			if (arg_csh || cfg.shell ) {
 				fprintf(stderr, "Error: only one default user shell can be specified\n");
 				return 1;
 			}
 			arg_zsh = 1;
 		}
+		else if (strcmp(argv[i], "--shell=none") == 0) {
+			arg_shell_none = 1;
+			if (arg_csh || arg_zsh || cfg.shell) {
+				fprintf(stderr, "Error: a shell was already specified\n");
+				return 1;
+			}
+		}
 		else if (strncmp(argv[i], "--shell=", 8) == 0) {
-			if (arg_csh || arg_zsh) {
-				fprintf(stderr, "Error: only one default user shell can be specified\n");
+			if (arg_shell_none) {
+				fprintf(stderr, "Error: --shell=none was already specified.\n");
+				return 1;
+			}
+			if (arg_csh || arg_zsh || cfg.shell) {
+				fprintf(stderr, "Error: only one user shell can be specified\n");
 				return 1;
 			}
 			cfg.shell = argv[i] + 8;
@@ -652,6 +670,7 @@ int main(int argc, char **argv) {
 			}
 			extract_command_name(argv[i]);
 			prog_index = i;
+			cfg.original_program_index = i;
 			break;
 		}
 		else {
@@ -664,6 +683,7 @@ int main(int argc, char **argv) {
 			// we have a program name coming
 			extract_command_name(argv[i]);
 			prog_index = i;
+			cfg.original_program_index = i;
 			break;
 		}
 	}
