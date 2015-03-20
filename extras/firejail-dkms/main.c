@@ -217,7 +217,7 @@ static ssize_t firejail_write(struct file *file, const char *buffer, size_t len,
 			goto errout;
 		}
 		memcpy(&ptr->real_start_time, &current->real_start_time, sizeof(struct timespec));
-		printk(KERN_INFO "firejail: new sandbox registered, pid %d, nsproxy %p\n", ptr->sandbox_pid, ptr->nsproxy);
+//		printk(KERN_INFO "firejail: new sandbox registered, pid %d, nsproxy %p\n", ptr->sandbox_pid, ptr->nsproxy);
 	}
 	else {
 		printk(KERN_INFO "firejail: invalid command\n");

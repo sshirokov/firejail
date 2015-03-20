@@ -45,7 +45,7 @@ NsRule *find_or_create_rule(void) {
 		ptr->nsproxy = current->nsproxy;
 		ptr->sandbox_pid = real_parent->pid;
 		ptr->active = 1;
-		printk(KERN_INFO "firejail[%u]: setup sandbox.\n", ptr->sandbox_pid);
+//		printk(KERN_INFO "firejail[%u]: setup sandbox.\n", ptr->sandbox_pid);
 		return ptr;
 	}
 	
@@ -59,6 +59,6 @@ NsRule *find_or_create_rule(void) {
 	ptr->next = head.next;
 	head.next = ptr;
 	ptr->active = 1;
-	printk(KERN_INFO "firejail[%u]: setup sandbox.\n", ptr->sandbox_pid);
+//	printk(KERN_INFO "firejail[%u]: setup sandbox.\n", ptr->sandbox_pid);
 	return ptr;
 }

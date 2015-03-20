@@ -810,14 +810,6 @@ int main(int argc, char **argv) {
 		flock(lockfd, LOCK_UN);
 	}
 
-	{
-		char *msg;
-		if (asprintf(&msg, "child %u started", child) == -1)
-			errExit("asprintf");
-		logmsg(msg);
-		free(msg);
-	}
-	
 	// handle CTRL-C in parent
 	signal (SIGINT, my_handler);
 	signal (SIGTERM, my_handler);

@@ -46,7 +46,7 @@ int arp_check(const char *dev, uint32_t destaddr, uint32_t srcaddr) {
 	if (arg_debug)
 		printf("Trying %d.%d.%d.%d ...\n", PRINT_IP(destaddr));
 
-	// find eth0 interface address
+	// find interface address
 	int sock;
 	if ((sock = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0)
 		errExit("socket");
@@ -54,7 +54,7 @@ int arp_check(const char *dev, uint32_t destaddr, uint32_t srcaddr) {
 	srcaddr = htonl(srcaddr);
 	destaddr = htonl(destaddr);
 
-	// FInd eth0 interface MAC address
+	// Find interface MAC address
 	struct ifreq ifr;
 	memset(&ifr, 0, sizeof (ifr));
 	snprintf(ifr.ifr_name, sizeof (ifr.ifr_name), "%s", dev);
@@ -129,7 +129,7 @@ int arp_check(const char *dev, uint32_t destaddr, uint32_t srcaddr) {
 			// parse the incomming packet
 			if (len < 14 + sizeof(ArpHdr))
 				continue;
-			if (frame[12] != ETH_P_ARP / 256 || frame[13] != ETH_P_ARP % 256)
+			if (frame[12] != (ETH_P_ARP / 256) || frame[13] != (ETH_P_ARP % 256))
 				continue;
 			memcpy(&hdr, frame + 14, sizeof(ArpHdr));
 			if (hdr.opcode == htons(1))

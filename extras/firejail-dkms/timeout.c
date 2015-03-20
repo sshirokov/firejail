@@ -20,7 +20,7 @@ void firejail_timeout(unsigned long dummy) {
 	// walk the rules list and disable rules if no process left in the namespace
 	while (ptr) {
 		if (ptr->active && find_pid(ptr->sandbox_pid) == NULL) {
-			printk(KERN_INFO "firejail[%u]: release sandbox.\n", ptr->sandbox_pid);
+//			printk(KERN_INFO "firejail[%u]: release sandbox.\n", ptr->sandbox_pid);
 			ptr->active = 0;
 		}
 			
