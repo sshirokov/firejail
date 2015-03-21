@@ -336,7 +336,9 @@ int sandbox(void* sandbox_arg) {
 				printf("execvp argument %d: %s\n", i - cfg.original_program_index, cfg.original_argv[i]);
 			}
 		}
-		fflush(0);
+
+		if (!arg_command)
+			printf("Child process initialized\n");
 		execvp(cfg.original_argv[cfg.original_program_index], &cfg.original_argv[cfg.original_program_index + 1]);
 	}
 	//****************************************
@@ -383,6 +385,9 @@ int sandbox(void* sandbox_arg) {
 				printf("execvp argument %d: %s\n", i, arg[i]);
 			}
 		}
+		
+		if (!arg_command)
+			printf("Child process initialized\n");
 		execvp(sh, arg);
 	}
 	
