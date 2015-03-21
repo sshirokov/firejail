@@ -26,7 +26,8 @@ int main(int argc, char *argv[]) {
 	
 	// direct all errror to /dev/null to work around this qt bug:
 	//      https://bugreports.qt.io/browse/QTBUG-43270
-	freopen( "/dev/null", "w", stderr );
+	FILE *rv = freopen( "/dev/null", "w", stderr );
+	(void) rv;
 	
 	return app.exec();
 }
