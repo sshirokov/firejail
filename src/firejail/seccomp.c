@@ -508,5 +508,57 @@ void seccomp_set(void) {
 	}
 }
 
+void seccomp_print_filter_name(const char *name) {
+	if (!name || strlen(name) == 0) {
+		fprintf(stderr, "Error: invalid sandbox name\n");
+		exit(1);
+	}
+	pid_t pid;
+	if (name2pid(name, &pid)) {
+		fprintf(stderr, "Error: cannot find sandbox %s\n", name);
+		exit(1);
+	}
+
+	seccomp_print_filter(pid);
+}
+
+void seccomp_print_filter(pid_t pid) {
+	// if the pid is that of a firejail  process, use the pid of the first child process
+	char *comm = pid_proc_comm(pid);
+	if (comm) {
+		// remove \n
+		char *ptr = strchr(comm, '\n');
+		if (ptr)
+			*ptr = '\0';
+		if (strcmp(comm, "firejail") == 0) {
+			pid_t child;
+			if (find_child(pid, &child) == 0) {
+				pid = child;
+			}
+		}
+		free(comm);
+	}
+	
+	// join the mount namespace
+	if (join_namespace(pid, "mnt"))
+		exit(1);
+
+	// find the seccomp file
+	struct stat s;
+	if (stat("/tmp/firejail/mnt/seccomp", &s) == -1) {
+		printf("This sandbox doesn't uses seccomp-bpf.\n");
+		exit(1);
+	}
+		
+	// read filter file	
+	read_seccomp_file();
+
+	// drop privileges
+	drop_privs(arg_nogroups);
+
+	// print filter
+	filter_debug();
+}
+
 #endif // HAVE_SECCOMP
 

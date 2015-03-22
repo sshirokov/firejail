@@ -265,6 +265,8 @@ void fs_mount_xauthority(void);
 int seccomp_filter_drop(void);
 int seccomp_filter_keep(void);
 void seccomp_set(void);
+void seccomp_print_filter_name(const char *name);
+void seccomp_print_filter(pid_t pid);
 
 // caps.c
 int caps_default_filter(void);

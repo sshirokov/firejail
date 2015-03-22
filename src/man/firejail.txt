@@ -92,7 +92,7 @@ the sandbox is started as root.
 Join the sandbox started using \-\-name option.
 .TP
 \fB\-\-join=pid
-Join the sandbox specified by pid. Use \-\-list option to get a list of all active sandboxes.
+Join the sandbox specified by process ID. Use \-\-list option to get a list of all active sandboxes.
 .TP
 \fB\-\-list
 List all sandboxes.
@@ -186,15 +186,24 @@ Set the maximum number of processes that can be created for the real user ID of 
 Set the maximum number of pending signals for a process.
 .TP
 \fB\-\-seccomp
-Enable seccomp filter and disable the syscalls in the default list. The default list is as follows:
+Enable seccomp filter and blacklist the syscalls in the default list. The default list is as follows:
 mount, umount2, ptrace, kexec_load, open_by_handle_at, init_module, finit_module, delete_module,
-iopl, ioperm, swapon, swapoff and syslog.
+iopl, ioperm, swapon, swapoff, mknode, syslog, process_vm_readv and process_vm_writev.
 .TP
 \fB\-\-seccomp=syscall,syscall,syscall
-Enable seccomp filter, apply the default list and the syscalls specified by the command.
+Enable seccomp filter, blacklist the default list and the syscalls specified by the command.
 .TP
-\fB\-\-seccomp=empty,syscall,syscall
-Enable seccomp filter, and apply the syscalls specified by the command. The default syscall list is not applied.
+\fB\-\-seccomp.drop=syscall,syscall,syscall
+Enable seccomp filter, and blacklist the syscalls specified by the command.
+.TP
+\fB\-\-seccomp.keep=syscall,syscall,syscall
+Enable seccomp filter, and whitelist the syscalls specified by the command.
+.TP
+\fB\-\-seccomp.print=name
+Print the seccomp filter for the sandbox started using \-\-name option.
+.TP
+\fB\-\-seccomp.print=pid
+Print the seccomp filter for the sandbox specified by process ID. Use \-\-list option to get a list of all active sandboxes.
 .TP
 \fB\-\-shell=none
 Run the program directly, without a user shell.
@@ -209,7 +218,7 @@ shell.
 Shutdown the sandbox started using \-\-name option.
 .TP
 \fB\-\-shutdown=pid
-Shutdown the sandbox specified by pid. Use \-\-list option to get a list of all active sandboxes.
+Shutdown the sandbox specified by process ID. Use \-\-list option to get a list of all active sandboxes.
 .TP
 \fB\-\-tmpfs=dirname
 Mount a tmpfs filesystem on directory dirname.

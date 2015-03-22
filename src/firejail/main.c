@@ -241,6 +241,17 @@ int main(int argc, char **argv) {
 			syscall_print();
 			exit(0);
 		}
+		else if (strncmp(argv[i], "--seccomp.print=", 16) == 0) {
+			// join sandbox by pid or by name
+			pid_t pid;
+			if (read_pid(argv[i] + 16, &pid) == 0)		
+				seccomp_print_filter(pid);
+			else
+				seccomp_print_filter_name(argv[i] + 16);
+				
+			// it will never get here!!!
+			exit(0);
+		}
 #endif
 		else if (strcmp(argv[i], "--debug-caps") == 0) {
 			caps_print();

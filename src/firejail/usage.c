@@ -130,22 +130,31 @@ void usage(void) {
 	printf("\t\tcreated for the real user ID of the calling process.\n\n");
 	printf("\t--rlimit-sigpending=number - set the maximum number of pending signals\n");
 	printf("\t\tfor a process.\n\n");
+
 #ifdef HAVE_SECCOMP
-	printf("\t--seccomp - enable seccomp filter and disable the syscalls in the\n");
+	printf("\t--seccomp - enable seccomp filter and blacklist the syscalls in the\n");
 	printf("\t\tlist. The default list is as follows: mount, umount2,\n");
 	printf("\t\tptrace, kexec_load, open_by_handle_at, init_module,\n");
-	printf("\t\tfinit_module, delete_module, iopl, ioperm, swapon, swapoff\n");
-	printf("\t\tand syslog.\n\n");
-	printf("\t--seccomp=syscall,syscall,syscall - enable seccomp filter, apply the\n");
+	printf("\t\tfinit_module, delete_module, iopl, ioperm, swapon, swapoff,\n");
+	printf("\t\tmknode, syslog, process_vm_readv and process_vm_writev\n\n");
+	
+	printf("\t--seccomp=syscall,syscall,syscall - enable seccomp filter, blacklist the\n");
 	printf("\t\tdefault syscall list and the syscalls specified by the command.\n\n");
-	printf("\t--seccomp=empty,syscall,syscall - enable seccomp filter, and apply\n");
-	printf("\t\tthe syscalls specified by the command. The default syscall list\n");
-	printf("\t\tis not applied.\n\n");
+	
+	printf("\t--seccomp.drop=syscall,syscall,syscall - enable seccomp filter, and\n");
+	printf("\t\tblacklist the syscalls specified by the command.\n\n");
+	
+	printf("\t--seccomp.keep=syscall,syscall,syscall - enable seccomp filter, and\n");
+	printf("\t\twhitelist the syscalls specified by the command.\n\n");
+	
+	printf("\t--seccomp.print=name - print the seccomp filter for the sandbox started\n");
+	printf("\t\tusing --name option.\n\n");
 #endif
+
 	printf("\t--shell=none - run the program directly without a user shell.\n\n");
 	printf("\t--shell=program - set default user shell.\n\n");
 	printf("\t--shutdown=name - shutdown the sandbox started using --name option.\n\n");
-	printf("\t--shutdown=pid - shutdown the sandbox specified by pid.\n\n");
+	printf("\t--shutdown=pid - shutdown the sandbox specified by process ID.\n\n");
 	printf("\t--tmpfs=dirname - mount a tmpfs filesystem on directory dirname.\n\n");
 	printf("\t--top - monitor the most CPU-intensive sandboxes.\n\n");
 	printf("\t--trace - trace open, access and connect system calls.\n\n");
