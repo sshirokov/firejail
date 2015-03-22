@@ -28,26 +28,17 @@ void syscall_probe_connect(struct pt_regs *regs, long id, NsRule *rule) {
 			}
 
 			family = ((struct sockaddr *) &addr)->sa_family;
-			if (family == AF_INET) {
-//				struct sockaddr_in *saddr4 = (struct sockaddr_in *) &addr;
-//				char *a = (char *) &saddr4->sin_addr.s_addr;
-//				printk(KERN_INFO "firejail[%u]: connect AF_INET %u.%u.%u.%u\n", rule->sandbox_pid,
-//					a[0] & 0xff, a[1] & 0xff, a[2] & 0xff, a[3] & 0xff);
-			}
-
-			else if (family == AF_INET6) {
-//				printk(KERN_INFO "firejail[%u]: connect AF_INET6\n", rule->sandbox_pid);
-			}
-
-			else if (family == AF_UNIX) {
+			if (family == AF_UNIX) {
 				int i;
 				struct sockaddr_un *a = (struct sockaddr_un *) &addr;
+#if 0
 				if (a->sun_path[0]) {
 					printk(KERN_INFO "firejail[%u]: connect AF_UNIX #%s#\n", rule->sandbox_pid, a->sun_path);
 				}
 				else {
 					printk(KERN_INFO "firejail[%u]: connect AF_UNIX %s\n", rule->sandbox_pid, a->sun_path + 1);
 				}
+#endif
 
 				for (i = 0; i < MAX_UNIX_PATH; i++) {
 					if (rule->unix_path_len[i] && rule->unix_path[i]) {

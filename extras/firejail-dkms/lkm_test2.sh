@@ -1,5 +1,8 @@
 #!/bin/bash
-SLEEP="10"
+SLEEP="1"
+
+cnt="0"
+echo > cnt
 
 while [ 1 ]
 do
@@ -126,5 +129,8 @@ do
 	firejail sleep $SLEEP &
 	firejail sleep $SLEEP 
 	firejail sleep $SLEEP
-	ps aux
+	echo "******************************************************************"
+	cnt=$[$cnt+123]
+	echo "cnt $cnt" >> cnt
+	echo "******************************************************************"
 done

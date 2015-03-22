@@ -80,6 +80,18 @@ static void myexit(int rv) {
 	logmsg("exiting...");
 	if (!arg_command)
 		printf("\nparent is shutting down, bye...\n");
+	
+	struct stat s;
+	if (stat("/proc/firejail", &s) == 0) {
+		FILE *fp = fopen("/proc/firejail", "w");
+		if (fp) {
+			// registration
+			fprintf(fp, "release\n");
+			fflush(0);
+			fclose(fp);
+		}
+	}
+	
 	exit(rv); 
 }
 

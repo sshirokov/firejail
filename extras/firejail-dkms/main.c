@@ -41,11 +41,13 @@ static void syscall_probe(void *__data, struct pt_regs *regs, long id) {
 		return;
 #endif
 
+	rcu_read_lock();
 	ptr = find_rule(current->nsproxy);
 	if (ptr) {
 //printk(KERN_INFO "syscall proxy %p\n", current->nsproxy);
 		syscall_probe_connect(regs, id, ptr);
 	}
+	rcu_read_unlock();
 }
 
 
@@ -219,6 +221,13 @@ static ssize_t firejail_write(struct file *file, const char *buffer, size_t len,
 		memcpy(&ptr->real_start_time, &current->real_start_time, sizeof(struct timespec));
 //		printk(KERN_INFO "firejail: new sandbox registered, pid %d, nsproxy %p\n", ptr->sandbox_pid, ptr->nsproxy);
 	}
+	
+	else if (sargc == 1 && strcmp(sargv[0], "release") == 0) {
+		NsRule *ptr = find_sandbox_pid(current->pid);
+		if (ptr)
+			ptr->active = 0;
+	}
+	
 	else {
 		printk(KERN_INFO "firejail: invalid command\n");
 		goto errout;

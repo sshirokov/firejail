@@ -75,18 +75,27 @@ void drop_privs(int nogroups) {
 
 
 void logsignal(int s) {
+	if (!arg_debug)
+		return;
+
 	openlog("firejail", LOG_NDELAY | LOG_PID, LOG_USER);
 	syslog(LOG_INFO, "Signal %d caught", s);
 	closelog();
 }
 
 void logmsg(const char *msg) {
+	if (!arg_debug)
+		return;
+
 	openlog("firejail", LOG_NDELAY | LOG_PID, LOG_USER);
 	syslog(LOG_INFO, "%s\n", msg);
 	closelog();
 }
 
 void logargs(int argc, char **argv) {
+	if (!arg_debug)
+		return;
+
 	int i;
 	int len = 0;
 
@@ -108,6 +117,9 @@ void logargs(int argc, char **argv) {
 
 
 void logerr(const char *msg) {
+	if (!arg_debug)
+		return;
+
 	openlog("firejail", LOG_NDELAY | LOG_PID, LOG_USER);
 	syslog(LOG_ERR, "%s\n", msg);
 	closelog();

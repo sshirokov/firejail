@@ -47,6 +47,19 @@ static inline NsRule *find_rule(struct nsproxy *nsproxy) {
 		ptr = ptr->next;
 	}
 	return ptr;
+}
+
+static inline NsRule *find_sandbox_pid(pid_t pid) {
+	NsRule *ptr;
+
+	// look for an exiting active namespace entry in the list
+	ptr = head.next;
+	while (ptr) {
+		if (ptr->active && ptr->sandbox_pid == pid)
+			break;
+		ptr = ptr->next;
+	}
+	return ptr;
 }	
 
 // timeout.c
