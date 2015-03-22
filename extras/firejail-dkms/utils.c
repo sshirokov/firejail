@@ -3,9 +3,11 @@
 
 struct task_struct *get_sandbox(void) {
 	struct task_struct *rv;
+		rcu_read_lock();
 	rv = current->real_parent;
 	while (rv && rv->nsproxy == current->nsproxy)
 		rv = rv->real_parent;
+	rcu_read_unlock();
 	return rv;
 }
 
@@ -22,12 +24,14 @@ NsRule *find_or_create_rule(void) {
 	real_parent = get_sandbox();
 
 	// reuse an inactive entry
+	rcu_read_lock();
 	ptr = head.next;
 	while (ptr) {
 		if (ptr->active == 0)
 			break;
 		ptr = ptr->next;
 	}
+	rcu_read_unlock();
 	if (ptr) { // found an inactive entry
 		int i;
 		
@@ -52,6 +56,7 @@ NsRule *find_or_create_rule(void) {
 	// allocate a new rule
 	ptr = kmalloc(sizeof(NsRule), GFP_KERNEL);
 	memset(ptr, 0, sizeof(NsRule));
+	rcu_read_lock();
 	ptr->nsproxy = current->nsproxy;
 	ptr->sandbox_pid = real_parent->pid;
 
@@ -59,6 +64,7 @@ NsRule *find_or_create_rule(void) {
 	ptr->next = head.next;
 	head.next = ptr;
 	ptr->active = 1;
+	rcu_read_unlock();
 //	printk(KERN_INFO "firejail[%u]: setup sandbox.\n", ptr->sandbox_pid);
 	return ptr;
 }

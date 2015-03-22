@@ -10,7 +10,7 @@ MODULE_LICENSE("GPL");
 static struct nsproxy *main_ns;
 NsRule head;
 NsRule tmp_head;
-DEFINE_SPINLOCK(head_lock);
+static atomic_t firejail_available = ATOMIC_INIT(1);
 
 #if !(LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0))
 static struct tracepoint *tp_sysenter;
@@ -41,13 +41,11 @@ static void syscall_probe(void *__data, struct pt_regs *regs, long id) {
 		return;
 #endif
 
-	rcu_read_lock();
 	ptr = find_rule(current->nsproxy);
 	if (ptr) {
 //printk(KERN_INFO "syscall proxy %p\n", current->nsproxy);
 		syscall_probe_connect(regs, id, ptr);
 	}
-	rcu_read_unlock();
 }
 
 
@@ -56,8 +54,6 @@ static void syscall_probe(void *__data, struct pt_regs *regs, long id) {
 //*****************************************************
 // first seq call - return NULL to end the sequence
 static void *firejail_seq_start(struct seq_file *s, loff_t *pos) {
-	spin_lock(&head_lock);
-
 	/* beginning a new sequence ? */
 	if (*pos == 0) {
 		return &head;
@@ -79,7 +75,6 @@ static void *firejail_seq_next(struct seq_file *s, void *v, loff_t *pos) {
 
 // stop seq - called at the end of the sequence
 static void firejail_seq_stop(struct seq_file *s, void *v) {
-	spin_unlock(&head_lock);
 	/* nothing to do, we use a static value in start() */
 }
 
@@ -92,6 +87,7 @@ static int firejail_seq_show(struct seq_file *s, void *v) {
 	if (ptr->nsproxy == NULL) {
 		int active = 0;
 		int inactive = 0;
+		rcu_read_lock();
 		ptr = head.next;
 		while (ptr) {
 			if (ptr->active)
@@ -100,6 +96,7 @@ static int firejail_seq_show(struct seq_file *s, void *v) {
 				inactive++;
 			ptr = ptr->next;
 		}
+		rcu_read_unlock();
 				
 		seq_printf(s, "Kernel rules: %d active, %d inactive\n", active, inactive);
 	}
@@ -131,19 +128,24 @@ static struct seq_operations firemon_seq_ops = {
 };
 
 static int firemon_open(struct inode *inode, struct file *file) {
+	if (!atomic_dec_and_test (&firejail_available)) {
+		atomic_inc(&firejail_available);
+//		printk(KERN_INFO "firejail: /proc/firejail busy\n");
+		return -EBUSY; /* already open */
+	}
 	return seq_open(file, &firemon_seq_ops);
 };
 
-
+static int firemon_release(struct inode *inode, struct file *filp) {
+	atomic_inc(&firejail_available); /* release the device */
+	return seq_release(inode, filp);
+}
 	
 static ssize_t firejail_write(struct file *file, const char *buffer, size_t len, loff_t * off) {
 	NsRule *ptr;
 	char *cmd_buffer;
 	unsigned long cmd_len;
-//	int i;
-	spin_lock(&head_lock);
-	
-	
+
 	// extract the command
 	if (len > CMD_MAX_SIZE)
 		cmd_len = CMD_MAX_SIZE;
@@ -233,12 +235,10 @@ static ssize_t firejail_write(struct file *file, const char *buffer, size_t len,
 		goto errout;
 	}
 		
-	spin_unlock(&head_lock);
 	kfree(cmd_buffer);
 	return cmd_len;
 
 errout:	
-	spin_unlock(&head_lock);
 	kfree(cmd_buffer);
 	return -EFAULT;
 }
@@ -250,7 +250,8 @@ static struct file_operations firejail_fops = {
 	.read    = seq_read,
 	.write   = firejail_write,
 	.llseek  = seq_lseek,
-	.release = seq_release
+//	.release = seq_release
+	.release = firemon_release
 };
 
 //*****************************************************

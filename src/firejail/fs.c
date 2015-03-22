@@ -24,7 +24,7 @@
 #include <glob.h>
 #include <dirent.h>
 #include <fcntl.h>
-
+#include <errno.h>
 
 // build /tmp/firejail directory
 void fs_build_firejail_dir(void) {
@@ -383,7 +383,23 @@ void fs_proc_sys_dev_boot(void) {
 
 	// mounting firejail kernel module files
 	if (stat("/proc/firejail-uptime", &s) == 0) {
+		errno = 0;
 		FILE *fp = fopen("/proc/firejail", "w");
+		int cnt = 0;
+		while (errno == EBUSY && cnt < 10) {
+			if (!fp) {
+				int s = random();
+				s /= 200000;
+				usleep(s);
+				fp = fopen("/proc/firejail", "w");
+			}
+			else
+				break;
+		}
+		if (!fp) {
+			fprintf(stderr, "Error: cannot register sandbox with firejail-lkm\n");
+			exit(1);
+		}	
 		if (fp) {
 			// registration
 			fprintf(fp, "register\n");

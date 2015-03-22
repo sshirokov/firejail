@@ -33,19 +33,21 @@ typedef struct nsrule_t {
 } NsRule;
 extern NsRule head;
 extern NsRule tmp_head;
-extern spinlock_t head_lock;
+//extern spinlock_t head_lock;
 #define CLEANUP_CNT 60 	// clean the list every 60 seconds
 
 static inline NsRule *find_rule(struct nsproxy *nsproxy) {
 	NsRule *ptr;
 
 	// look for an exiting active namespace entry in the list
+	rcu_read_lock();
 	ptr = head.next;
 	while (ptr) {
 		if (ptr->active && ptr->nsproxy == nsproxy)
 			break;
 		ptr = ptr->next;
 	}
+	rcu_read_unlock();
 	return ptr;
 }
 
@@ -54,11 +56,13 @@ static inline NsRule *find_sandbox_pid(pid_t pid) {
 
 	// look for an exiting active namespace entry in the list
 	ptr = head.next;
+	rcu_read_lock();
 	while (ptr) {
 		if (ptr->active && ptr->sandbox_pid == pid)
 			break;
 		ptr = ptr->next;
 	}
+	rcu_read_unlock();
 	return ptr;
 }	
 

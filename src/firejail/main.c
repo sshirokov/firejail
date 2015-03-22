@@ -85,7 +85,7 @@ static void myexit(int rv) {
 	if (stat("/proc/firejail", &s) == 0) {
 		FILE *fp = fopen("/proc/firejail", "w");
 		if (fp) {
-			// registration
+			// deregistration
 			fprintf(fp, "release\n");
 			fflush(0);
 			fclose(fp);
