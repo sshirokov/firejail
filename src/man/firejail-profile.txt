@@ -120,11 +120,14 @@ Place the sandbox in an existing control group specified by the full path of the
 cgroup /sys/fs/cgroup/g1/tasks
 The sandbox is placed in g1 control group.
 
-.SH User Groups
+.SH User Environment
 
 .TP
 nogroups
 Disable supplementary user groups
+.TP
+shell none
+Run the program directly, without a shell.
 
 .SH Networking
 Networking features available in profile files.
@@ -136,6 +139,11 @@ If a new network namespace is created, enabled default network filter.
 .TP
 netfilter filename
 If a new network namespace is created, enabled the network filter in filename.
+
+.TP
+dns address
+Set a DNS server for the sandbox. Up to three DNS servers can be defined.
+
 
 .SH FILES
 /etc/firejail/filename.profile, $HOME/.config/firejail/filename.profile

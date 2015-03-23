@@ -6,6 +6,9 @@ firejail (0.9.23) baseline; urgency=low
   * --caps.drop=all in default profiles
   * doubledash option
   * --shell=none support
+  * shell none support in profile files
+  * dns server support in profile files
+  * added --dns.print option
   * whitelist seccomp filters
   * new syscalls in default seccomp filter: sysfs, sysctl, adjtimex, kcmp
   *    clock_adjtime, lookup_dcookie, perf_event_open, fanotify_init

@@ -185,6 +185,27 @@ int profile_check_line(char *ptr, int lineno) {
 		return 0;
 	}
 	
+	// dns
+	if (strncmp(ptr, "dns ", 4) == 0) {
+		uint32_t dns;
+		if (atoip(ptr + 4, &dns)) {
+			fprintf(stderr, "Error: invalid DNS server IP address, aborting\n");
+			return 1;
+		}
+		
+		if (cfg.dns1 == 0)
+			cfg.dns1 = dns;
+		else if (cfg.dns2 == 0)
+			cfg.dns2 = dns;
+		else if (cfg.dns3 == 0)
+			cfg.dns3 = dns;
+		else {
+			fprintf(stderr, "Error: up to 3 DNS servers can be specified\n");
+			return 1;
+		}
+		return 0;
+	}
+	
 	// cpu affinity
 	if (strncmp(ptr, "cpu ", 4) == 0) {
 		read_cpu_list(ptr + 4);

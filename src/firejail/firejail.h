@@ -148,6 +148,8 @@ void net_configure_sandbox_ip(Bridge *br);
 void net_configure_veth_pair(Bridge *br, const char *ifname, pid_t child);
 void net_bridge_wait_ip(Bridge *br);
 void net_check_cfg(void);
+void net_dns_print_name(const char *name);
+void net_dns_print(pid_t pid);
 
 // network.c
 void net_if_up(const char *ifname);

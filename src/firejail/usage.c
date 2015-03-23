@@ -61,9 +61,11 @@ void usage(void) {
 	printf("\t\tFirejail software build and exit.\n\n");
 	printf("\t--defaultgw=address - use this address as default gateway in the new\n");
 	printf("\t\tnetwork namespace.\n\n");
-	printf("\t--dns=address - set a DNS server for the sandbox. This option is\n");
-	printf("\t\tvalid only if at least one new network interface was defined\n");
-	printf("\t\tusing --net option. Up to three DNS servers can be defined.\n\n");
+	printf("\t--dns=address - set a DNS server for the sandbox. Up to three DNS\n");
+	printf("\t\tservers can be defined.\n\n");
+	printf("\t--dns.print=name - print DNS configuration for the sandbox started\n");
+	printf("\t\tusing --name option.\n\n");
+	printf("\t--dns.print=pid - print DNS configuration of the specified process.\n\n");
 	printf("\t--help, -? - this help screen.\n\n");
 	printf("\t--ip=address - use this IP address in the new network namespace.\n\n");
 	printf("\t--ip=none - no IP address and no default gateway address are configured\n");

@@ -223,3 +223,59 @@ void net_check_cfg(void) {
 			fprintf(stderr, "Using %d.%d.%d.%d as default gateway.\n", PRINT_IP(cfg.defaultgw));
 	}
 }
+
+
+
+void net_dns_print_name(const char *name) {
+	if (!name || strlen(name) == 0) {
+		fprintf(stderr, "Error: invalid sandbox name\n");
+		exit(1);
+	}
+	pid_t pid;
+	if (name2pid(name, &pid)) {
+		fprintf(stderr, "Error: cannot find sandbox %s\n", name);
+		exit(1);
+	}
+
+	net_dns_print(pid);
+}
+
+#define MAXBUF 4096
+void net_dns_print(pid_t pid) {
+	// if the pid is that of a firejail  process, use the pid of the first child process
+	char *comm = pid_proc_comm(pid);
+	if (comm) {
+		// remove \n
+		char *ptr = strchr(comm, '\n');
+		if (ptr)
+			*ptr = '\0';
+		if (strcmp(comm, "firejail") == 0) {
+			pid_t child;
+			if (find_child(pid, &child) == 0) {
+				pid = child;
+			}
+		}
+		free(comm);
+	}
+	
+	// join the mount namespace
+	if (join_namespace(pid, "mnt"))
+		exit(1);
+
+	// drop privileges
+	drop_privs(1);
+
+	// access /etc/resolv.conf
+	FILE *fp = fopen("/etc/resolv.conf", "r");
+	if (!fp) {
+		fprintf(stderr, "Error: cannot access /etc/resolv.conf\n");
+		exit(1);
+	}
+	
+	char buf[MAXBUF];
+	while (fgets(buf, MAXBUF, fp))
+		printf("%s", buf);
+	printf("\n");
+	fclose(fp);
+	exit(0);
+}

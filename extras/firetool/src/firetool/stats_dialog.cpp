@@ -36,7 +36,7 @@ QString StatsDialog::header() {
 		msg += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"about\">About</a>";
 		msg += "</td></tr></table>";
 	}
-	else { // tree, seccomp
+	else { // tree, seccomp, dns
 		msg += "<table><tr><td width=\"5\"></td><td>";
 		msg += "<a href=\"back\">Back</a>";
 		msg += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"top\">Home</a>";
@@ -44,11 +44,12 @@ QString StatsDialog::header() {
 		msg += "</td></tr></table>";
 	}
 	
-	if (mode_ == MODE_PID || mode_ == MODE_TREE || mode_ == MODE_SECCOMP) {
+	if (mode_ == MODE_PID || mode_ == MODE_TREE || mode_ == MODE_SECCOMP || mode_ == MODE_DNS) {
 		msg += "<table><tr><td width=\"5\"></td><td>";
 		msg += "<a href=\"shut\">Shutdown</a>";
 		msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"join\">Join</a>";
 		msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"tree\">Process Tree</a>";
+		msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"dns\">DNS</a>";
 		msg += "</td></tr></table>";
 	}
 
@@ -129,6 +130,39 @@ void StatsDialog::updateSeccomp() {
 	char *str = 0;
 	char *cmd;
 	if (asprintf(&cmd, "firejail --seccomp.print=%d", pid_) != -1) {
+		str = run_program(cmd);
+		char *ptr = str;
+		// htmlize!
+		while (*ptr != 0) {
+			if (*ptr == '\n') {
+				*ptr = '\0';
+				msg += QString(str) + "<br/>\n";
+				ptr++;
+				
+				while (*ptr == ' ') {
+					msg += "&nbsp;&nbsp;";
+					ptr++;
+				}	
+				str = ptr;
+				continue;
+			}
+			ptr++;
+		}
+	}		
+	free(cmd);
+
+	msg += "</td></tr></table><hr>" + header();
+	procView_->setHtml(msg);
+}
+
+void StatsDialog::updateDns() {
+	QString msg = header();
+	msg += "<hr><table><tr><td width=\"5\"></td><td>";
+	msg += "Sandbox PID " + QString::number(pid_) + "<br />";
+		
+	char *str = 0;
+	char *cmd;
+	if (asprintf(&cmd, "firejail --dns.print=%d", pid_) != -1) {
 		str = run_program(cmd);
 		char *ptr = str;
 		// htmlize!
@@ -267,6 +301,8 @@ void StatsDialog::cycleReady(bool update) {
 			updateTree();
 		else if (mode_ == MODE_SECCOMP)
 			updateSeccomp();
+		else if (mode_ == MODE_DNS)
+			updateDns();
 	}
 }
 
@@ -284,6 +320,8 @@ void StatsDialog::anchorClicked(const QUrl & link) {
 			mode_ = MODE_PID;
 		else if (mode_ == MODE_SECCOMP)
 			mode_ = MODE_PID;
+		else if (mode_ == MODE_DNS)
+			mode_ = MODE_PID;
 		else if (mode_ == MODE_TOP);
 		else
 			assert(0);
@@ -294,8 +332,11 @@ void StatsDialog::anchorClicked(const QUrl & link) {
 		updated_ = false;
 	}
 	else if (linkstr == "seccomp") {
-printf("here %d\n", __LINE__);		
 		mode_ = MODE_SECCOMP;
+		updated_ = false;
+	}
+	else if (linkstr == "dns") {
+		mode_ = MODE_DNS;
 		updated_ = false;
 	}
 	else if (linkstr == "shut") {

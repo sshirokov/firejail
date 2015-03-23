@@ -253,6 +253,17 @@ int main(int argc, char **argv) {
 			exit(0);
 		}
 #endif
+		else if (strncmp(argv[i], "--dns.print=", 12) == 0) {
+			// join sandbox by pid or by name
+			pid_t pid;
+			if (read_pid(argv[i] + 12, &pid) == 0)		
+				net_dns_print(pid);
+			else
+				net_dns_print_name(argv[i] + 12);
+				
+			// it will never get here!!!
+			exit(0);
+		}
 		else if (strcmp(argv[i], "--debug-caps") == 0) {
 			caps_print();
 			exit(0);

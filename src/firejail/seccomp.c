@@ -570,6 +570,7 @@ void seccomp_print_filter(pid_t pid) {
 
 	// print filter
 	filter_debug();
+	exit(0);
 }
 
 #endif // HAVE_SECCOMP

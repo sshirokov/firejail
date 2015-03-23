@@ -71,8 +71,13 @@ Print all recognized capabilities in the current Firejail software build and exi
 Use this address as default gateway in the new network namespace.
 .TP
 \fB\-\-dns=address
-Set a DNS server for the sandbox. This option is valid only if at least one  new network interface was defined
-using \-\-net option. Up to three DNS servers can be defined.
+Set a DNS server for the sandbox. Up to three DNS servers can be defined.
+.TP
+\fB\-\-dns.print=name
+Print DNS configuration for the sandbox started using \-\-name option.
+.TP
+\fB\-\-dns.print=pid
+Print DNS configuration of the specified process. Use \-\-list option to get a list of all active sandboxes.
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Print options end exit.
