@@ -566,7 +566,7 @@ void seccomp_print_filter(pid_t pid) {
 	read_seccomp_file();
 
 	// drop privileges
-	drop_privs(arg_nogroups);
+	drop_privs(1);
 
 	// print filter
 	filter_debug();

@@ -96,6 +96,10 @@ int profile_check_line(char *ptr, int lineno) {
 		arg_caps_drop_all = 1;
 		return 0;
 	}
+	else if (strcmp(ptr, "shell none") == 0) {
+		arg_shell_none = 1;
+		return 0;
+	}	
 	else if (strcmp(ptr, "private") == 0) {
 		arg_private = 1;
 		return 0;
