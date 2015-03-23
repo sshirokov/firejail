@@ -67,11 +67,26 @@ Use mount directory as user home directory.
 caps
 Enable default Linux capabilities filter.
 .TP
+caps.drop all
+Blacklist all Linux capabilities.
+.TP
+caps.drop capability,capability,capability
+Blacklist Linux capabilities filter.
+.TP
+caps.drop capability,capability,capability
+Whitelist Linux capabilities filter.
+.TP
 \f\seccomp
 Enable default seccomp filter.
 .TP
 \f\seccomp syscall,syscall,syscall
-Enable seccomp filter and add  the system calls in the list on top of default seccomp filter.
+Enable seccomp filter and blacklist the system calls in the list on top of default seccomp filter.
+.TP
+\f\seccomp.drop syscall,syscall,syscall
+Enable seccomp filter and blacklist  the system calls in the list.
+.TP
+\f\seccomp.keep syscall,syscall,syscall
+Enable seccomp filter and whitelist the system calls in the list.
 
 
 .SH Resource limits
@@ -110,6 +125,17 @@ The sandbox is placed in g1 control group.
 .TP
 nogroups
 Disable supplementary user groups
+
+.SH Networking
+Networking features available in profile files.
+
+.TP
+netfilter
+If a new network namespace is created, enabled default network filter.
+
+.TP
+netfilter filename
+If a new network namespace is created, enabled the network filter in filename.
 
 .SH FILES
 /etc/firejail/filename.profile, $HOME/.config/firejail/filename.profile

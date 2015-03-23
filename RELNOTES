@@ -1,4 +1,4 @@
-firejail (0.9.23 baseline; urgency=low
+firejail (0.9.23) baseline; urgency=low
   * ongoing development
   * two build patches from Reiner Herman
   * man page patch from Reiner Herman
@@ -7,6 +7,8 @@ firejail (0.9.23 baseline; urgency=low
   * doubledash option
   * --shell=none support
   * whitelist seccomp filters
+  * new syscalls in default seccomp filter: sysfs, sysctl, adjtimex, kcmp
+  *    clock_adjtime, lookup_dcookie, perf_event_open, fanotify_init
   * Bugfix: using /proc/sys/kernel/pid_max for the max number of pids
   
  -- netblue30 <netblue30@yahoo.com>  Mon, 9 Mar 2015 09:00:00 -0500

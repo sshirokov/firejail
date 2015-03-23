@@ -119,7 +119,7 @@ void filter_debug(void) {
 	};
 
 	// print sizes
-	printf("SECCOMP Filter: %d entries\n", sfilter_index);
+	printf("SECCOMP Filter:\n");
 	if (sfilter == NULL) {
 		printf("SECCOMP filter not allocated\n");
 		return;
@@ -407,6 +407,18 @@ int seccomp_filter_drop(void) {
 		filter_add_blacklist(SYS_process_vm_readv);
 		filter_add_blacklist(SYS_process_vm_writev);
 		filter_add_blacklist(SYS_mknod);
+		
+		// new syscalls in 0.9,23		
+		filter_add_blacklist(SYS_sysfs);
+		filter_add_blacklist(SYS__sysctl);
+		filter_add_blacklist(SYS_adjtimex);
+		filter_add_blacklist(SYS_clock_adjtime);
+		filter_add_blacklist(SYS_lookup_dcookie);
+		filter_add_blacklist(SYS_perf_event_open);
+		filter_add_blacklist(SYS_fanotify_init);
+#ifdef SYS_kcmp // todo: check it on newer distros; it is not in Debian 7	
+		filter_add_blacklist(SYS_kcmp);
+#endif
 	}
 
 	// default seccomp filter with additional drop list
