@@ -1,11 +1,11 @@
 AC_PREREQ([2.68])
-AC_INIT(firejail, 0.9.23, netblue30@yahoo.com, , http://firejail.sourceforge.net)
+AC_INIT(firejail, 0.9.24-rc1, netblue30@yahoo.com, , http://firejail.sourceforge.net)
 AC_CONFIG_SRCDIR([src/firejail/main.c])
 #AC_CONFIG_HEADERS([config.h])
 
 
 AC_PROG_CC
-AC_PROG_CXX
+#AC_PROG_CXX
 AC_PROG_INSTALL
 AC_PROG_RANLIB
 
