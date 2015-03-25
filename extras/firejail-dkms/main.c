@@ -2,14 +2,15 @@
 
 #define PROC_FILE_NAME	"firejail"
 #define PROC_UPTIME		"firejail-uptime"
-struct timer_list rate_timer;		  // periodic cycle timer
+struct timer_list cleanup_timer;		  // periodic cycle timer
 
 //MODULE_LICENSE("GPLv2");
 MODULE_LICENSE("GPL");
 
-static struct nsproxy *main_ns;
+static struct nsproxy *main_ns;	// host nsproxy
+static struct net *main_net;		// host net structure
+
 NsRule head;
-NsRule tmp_head;
 static atomic_t firejail_available = ATOMIC_INIT(1);
 
 #if !(LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0))
@@ -87,7 +88,6 @@ static int firejail_seq_show(struct seq_file *s, void *v) {
 	if (ptr->nsproxy == NULL) {
 		int active = 0;
 		int inactive = 0;
-		rcu_read_lock();
 		ptr = head.next;
 		while (ptr) {
 			if (ptr->active)
@@ -96,7 +96,6 @@ static int firejail_seq_show(struct seq_file *s, void *v) {
 				inactive++;
 			ptr = ptr->next;
 		}
-		rcu_read_unlock();
 				
 		seq_printf(s, "Kernel rules: %d active, %d inactive\n", active, inactive);
 	}
@@ -220,7 +219,19 @@ static ssize_t firejail_write(struct file *file, const char *buffer, size_t len,
 			printk(KERN_INFO "firejail: cannot create sandbox\n");
 			goto errout;
 		}
-		memcpy(&ptr->real_start_time, &current->real_start_time, sizeof(struct timespec));
+		
+		
+		ptr->net = get_net(ptr->nsproxy->net_ns);	
+printk(KERN_INFO "net %p, %d\n", ptr->net, current->pid);		
+
+
+
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0))
+		do_posix_clock_monotonic_gettime(&ptr->real_start_time);
+		monotonic_to_bootbased(&ptr->real_start_time);
+#else
+		get_monotonic_boottime(&ptr->real_start_time);
+#endif
 //		printk(KERN_INFO "firejail: new sandbox registered, pid %d, nsproxy %p\n", ptr->sandbox_pid, ptr->nsproxy);
 	}
 	
@@ -265,8 +276,11 @@ static int __init init_main(void) {
 
 	// initialize locals
 	main_ns = current->nsproxy;
+	main_net = get_net(current->nsproxy->net_ns);	
+printk(KERN_INFO "main_net %p\n", main_net);	
+
+
 	memset(&head, 0, sizeof(head));
-	memset(&tmp_head, 0, sizeof(tmp_head));
 	head.active = 1;
 
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0))
@@ -295,8 +309,8 @@ static int __init init_main(void) {
 		goto errout2;
 	}
 
-	setup_timer(&rate_timer, firejail_timeout, 0);
-	mod_timer(&rate_timer, jiffies + HZ);
+	setup_timer(&cleanup_timer, firejail_timeout, 0);
+	mod_timer(&cleanup_timer, jiffies + HZ * CLEANUP_CNT);
 	printk(KERN_INFO "firejail: module initialized, main nsproxy %p.\n", main_ns);
 
 	return 0;
@@ -323,9 +337,26 @@ static void __exit cleanup_main(void) {
 #endif
 	remove_proc_entry(PROC_FILE_NAME, NULL);
 	remove_proc_entry(PROC_UPTIME, NULL);
-	del_timer_sync(&rate_timer);
+	del_timer_sync(&cleanup_timer);
 }
 
 
 module_init(init_main);
 module_exit(cleanup_main);
+
+#if 0
+struct net   -    http://lxr.free-electrons.com/source/include/net/net_namespace.h#L44
+struct net *get_net_ns_by_pid(pid_t pid);
+
+
+struct net_device { -  http://lxr.free-electrons.com/source/include/linux/netdevice.h#L1492
+...
+#ifdef CONFIG_NET_NS
+	struct net              *nd_net;
+#endif
+...
+}
+// use this to extract struct net *, it takes care of #ifdef CONFIG_NET_NS
+struct net *dev_net(const struct net_device *dev)
+
+#endif

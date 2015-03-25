@@ -3,14 +3,11 @@
 static struct task_struct *find_pid(pid_t pid) {
 	struct task_struct *p;
 
-	rcu_read_lock();
 	for_each_process(p) {
 		if (p->pid == pid) {
-			rcu_read_unlock();
 			return p;
 		}
 	}
-	rcu_read_unlock();
 	
 	return NULL;
 }
@@ -31,5 +28,5 @@ void firejail_timeout(unsigned long dummy) {
 	}
 	
 	// restart timer
-	mod_timer(&rate_timer, jiffies + HZ * 10);
+	mod_timer(&cleanup_timer, jiffies + HZ * CLEANUP_CNT);
 }

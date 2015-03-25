@@ -15,14 +15,16 @@
 #include <linux/un.h>
 
 // one second timer
-extern struct timer_list rate_timer;
+extern struct timer_list cleanup_timer;
+#define CLEANUP_CNT 10 	// clean the list every 60 seconds
 
 // rules
 typedef struct nsrule_t {
 	struct nsrule_t *next;	// linked list
 	
 	struct nsproxy *nsproxy;		// namespace proxy pointer
-	pid_t sandbox_pid;			// pid of the controll process for the sandbox
+	struct net *net;			// net structure for current sandbox
+	pid_t sandbox_pid;			// pid of the control process for the sandbox
 	struct timespec real_start_time;	// time when the sandbox was registered
 	unsigned active : 1;	// rule active flag; inactive rules are reused or deallocated
 
@@ -32,22 +34,17 @@ typedef struct nsrule_t {
 	int unix_path_len[MAX_UNIX_PATH];
 } NsRule;
 extern NsRule head;
-extern NsRule tmp_head;
-//extern spinlock_t head_lock;
-#define CLEANUP_CNT 60 	// clean the list every 60 seconds
 
 static inline NsRule *find_rule(struct nsproxy *nsproxy) {
 	NsRule *ptr;
 
 	// look for an exiting active namespace entry in the list
-	rcu_read_lock();
 	ptr = head.next;
 	while (ptr) {
 		if (ptr->active && ptr->nsproxy == nsproxy)
 			break;
 		ptr = ptr->next;
 	}
-	rcu_read_unlock();
 	return ptr;
 }
 
@@ -56,13 +53,11 @@ static inline NsRule *find_sandbox_pid(pid_t pid) {
 
 	// look for an exiting active namespace entry in the list
 	ptr = head.next;
-	rcu_read_lock();
 	while (ptr) {
 		if (ptr->active && ptr->sandbox_pid == pid)
 			break;
 		ptr = ptr->next;
 	}
-	rcu_read_unlock();
 	return ptr;
 }	
 

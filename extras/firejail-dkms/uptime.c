@@ -6,7 +6,12 @@ static int uptime_show(struct seq_file *m, void *v) {
 	if (ptr) {
 		unsigned long long delta;
 		struct timespec uptime;
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0))
+		do_posix_clock_monotonic_gettime(&uptime);
+		monotonic_to_bootbased(&uptime);
+#else
 		get_monotonic_boottime(&uptime);
+#endif
 		
 		delta =  (unsigned long long) uptime.tv_sec - (unsigned long long) ptr->real_start_time.tv_sec;
 		seq_printf(m, "%llu 0\n", delta);
