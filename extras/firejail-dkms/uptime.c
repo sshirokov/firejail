@@ -2,7 +2,7 @@
 
 
 static int uptime_show(struct seq_file *m, void *v) {
-	NsRule *ptr = find_rule(current->nsproxy);
+	NsRule *ptr = find_sandbox(current->nsproxy);
 	if (ptr) {
 		unsigned long long delta;
 		struct timespec uptime;

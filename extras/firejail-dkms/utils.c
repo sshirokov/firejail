@@ -14,7 +14,7 @@ NsRule *find_or_create_rule(void) {
 	struct task_struct *real_parent;
 
 	// look for an exiting active namespace entry in the list
-	NsRule *ptr = find_rule(current->nsproxy);
+	NsRule *ptr = find_sandbox(current->nsproxy);
 	if (ptr)
 		return ptr;
 	

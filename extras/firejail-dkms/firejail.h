@@ -16,7 +16,7 @@
 
 // one second timer
 extern struct timer_list cleanup_timer;
-#define CLEANUP_CNT 10 	// clean the list every 60 seconds
+#define CLEANUP_CNT 5 	// clean the list every 60 seconds
 
 // rules
 typedef struct nsrule_t {
@@ -26,8 +26,10 @@ typedef struct nsrule_t {
 	struct net *net;			// net structure for current sandbox
 	pid_t sandbox_pid;			// pid of the control process for the sandbox
 	struct timespec real_start_time;	// time when the sandbox was registered
-	unsigned active : 1;	// rule active flag; inactive rules are reused or deallocated
 
+	unsigned active : 1;	// rule active flag; inactive rules are reused or deallocated
+	unsigned net_active : 1;	// network shaping is active
+	
 	// unix sockets connections that will kill the process
 #define MAX_UNIX_PATH 8
 	char *unix_path[MAX_UNIX_PATH];
@@ -35,29 +37,46 @@ typedef struct nsrule_t {
 } NsRule;
 extern NsRule head;
 
-static inline NsRule *find_rule(struct nsproxy *nsproxy) {
+static inline NsRule *find_sandbox(struct nsproxy *nsproxy) {
 	NsRule *ptr;
 
-	// look for an exiting active namespace entry in the list
 	ptr = head.next;
 	while (ptr) {
-		if (ptr->active && ptr->nsproxy == nsproxy)
+		if (ptr->nsproxy == nsproxy)
 			break;
 		ptr = ptr->next;
 	}
+	
+	if (ptr == NULL || ptr->active == 0)
+		return NULL;
 	return ptr;
 }
 
 static inline NsRule *find_sandbox_pid(pid_t pid) {
 	NsRule *ptr;
 
-	// look for an exiting active namespace entry in the list
 	ptr = head.next;
 	while (ptr) {
-		if (ptr->active && ptr->sandbox_pid == pid)
+		if (ptr->sandbox_pid == pid)
 			break;
 		ptr = ptr->next;
 	}
+	if (ptr == NULL || ptr->active == 0)
+		return NULL;
+	return ptr;
+}
+	
+static inline NsRule *find_sandbox_net(struct net *net) {
+	NsRule *ptr;
+
+	ptr = head.next;
+	while (ptr) {
+		if (ptr->net == net)
+			break;
+		ptr = ptr->next;
+	}
+	if (ptr == NULL || ptr->active == 0 || ptr->net_active == 0)
+		return NULL;
 	return ptr;
 }	
 

@@ -23,6 +23,36 @@ static void set_tracepoint(struct tracepoint *tp, void *priv) {
 #endif
 
 //*****************************************************
+// traffic shaping
+//*****************************************************
+static unsigned int hook_func(unsigned int hooknum,
+		struct sk_buff *skb,
+		const struct net_device *in,
+		const struct net_device *out,
+		int (*okfn)(struct sk_buff *)) {
+	struct net *net;
+	NsRule *ptr;
+	
+	if (!skb || !in)
+		return NF_ACCEPT;
+		
+	net = dev_net(in);
+	if (net == main_net)
+		return NF_ACCEPT;
+	ptr = find_sandbox_net(net);
+	if (ptr)
+		printk(KERN_INFO "firejail: net found\n");
+	return NF_ACCEPT;
+}
+
+static struct nf_hook_ops nfho = {
+	.hook     = (nf_hookfn *) hook_func,
+	.hooknum  = 1,				  //NF_IP_LOCAL_IN,
+	.pf       = PF_INET,
+	.priority = NF_IP_PRI_FIRST
+};
+
+//*****************************************************
 // Syscall filtering
 //*****************************************************
 static void syscall_probe(void *__data, struct pt_regs *regs, long id) {
@@ -42,7 +72,7 @@ static void syscall_probe(void *__data, struct pt_regs *regs, long id) {
 		return;
 #endif
 
-	ptr = find_rule(current->nsproxy);
+	ptr = find_sandbox(current->nsproxy);
 	if (ptr) {
 //printk(KERN_INFO "syscall proxy %p\n", current->nsproxy);
 		syscall_probe_connect(regs, id, ptr);
@@ -110,6 +140,10 @@ static int firejail_seq_show(struct seq_file *s, void *v) {
 				break;
 		}
 	}
+	
+//	else if (current->nsproxy == main_ns && ptr->active == 0){
+//		seq_printf(s, "sandbox inactive\n");
+//	}
 	
 	else if (current->nsproxy == ptr->nsproxy) {
 		seq_printf(s, "\tThis namespace is protected\n");
@@ -283,53 +317,68 @@ printk(KERN_INFO "main_net %p\n", main_net);
 	memset(&head, 0, sizeof(head));
 	head.active = 1;
 
+
+
+	// initialize network hook
+	if (nf_register_hook(&nfho) < 0) {
+		printk(KERN_INFO "firejail: failed to initialize network hook.\n");
+		return 1;
+	}
+
+
+
+
+	// initialize tracepoints
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0))
 	ret = tracepoint_probe_register("sys_enter", syscall_probe, NULL);
 #else
 	for_each_kernel_tracepoint(set_tracepoint, NULL);
 	if (tp_sysenter == NULL) {
 		printk(KERN_INFO "firejail: failed to find tracepoints.\n");
-		return 1;
+		goto errout1;
 	}
 	ret = tracepoint_probe_register(tp_sysenter, syscall_probe, NULL);
 #endif
 	if (ret) {
 		printk(KERN_INFO "firejail: failed initializing syscall_enter_probe.\n");
-		return 1;
+		goto errout1;
 	}
 
 
 	if (proc_create(PROC_FILE_NAME, 0, NULL, &firejail_fops) == NULL) {
 		printk(KERN_INFO "firejail: failed initializing proc file.\n");
-		goto errout1;
+		nf_unregister_hook(&nfho);
+		goto errout2;
 	}
 
 	if (proc_create(PROC_UPTIME, 0, NULL, &uptime_fops) == NULL) {
 		printk(KERN_INFO "firejail: failed initializing proc file.\n");
-		goto errout2;
+		goto errout3;
 	}
 
 	setup_timer(&cleanup_timer, firejail_timeout, 0);
 	mod_timer(&cleanup_timer, jiffies + HZ * CLEANUP_CNT);
 	printk(KERN_INFO "firejail: module initialized, main nsproxy %p.\n", main_ns);
-
 	return 0;
 	
-errout2:
+errout3:
 	remove_proc_entry(PROC_FILE_NAME, NULL);
-errout1:
+errout2:
 printk(KERN_INFO "firejail: here %d\n", __LINE__);
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0))
 	tracepoint_probe_unregister("sys_enter", syscall_probe, NULL);
 #else
 	tracepoint_probe_unregister(tp_sysenter, syscall_probe, NULL);
 #endif
+errout1:
+	nf_unregister_hook(&nfho);
 	return 1;
 }
 
 
 static void __exit cleanup_main(void) {
 	printk(KERN_INFO "firejail: removing module.\n");
+	nf_unregister_hook(&nfho);
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0))
 	tracepoint_probe_unregister("sys_enter", syscall_probe, NULL);
 #else
