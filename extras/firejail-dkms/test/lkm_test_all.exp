@@ -1,0 +1,44 @@
+#!/usr/bin/expect -f
+
+set timeout 10
+spawn $env(SHELL)
+match_max 100000
+
+send -- "firejail --nodbus --nox11\r"
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"Child process initialized"
+}
+sleep 1
+send -- "dbus-monitor\r"
+expect {
+	timeout {puts "TESTING ERROR 0.1\n";exit}
+	"Bad system call"
+}
+send -- "xterm\r"
+expect {
+	timeout {puts "TESTING ERROR 0.2\n";exit}
+	"Bad system call"
+}
+sleep 1
+
+
+spawn $env(SHELL)
+
+send -- "cat /proc/firejail\r"
+expect {
+	timeout {puts "TESTING ERROR 1\n";exit}
+	"sandbox pid"
+}
+expect {
+	timeout {puts "TESTING ERROR 2\n";exit}
+	"no connect unix /tmp/.X11"
+}
+expect {
+	timeout {puts "TESTING ERROR 3\n";exit}
+	"no connect unix /var/run/dbus/system_bus_socket"
+}
+expect {
+	timeout {puts "TESTING ERROR 4\n";exit}
+	"no connect unix /tmp/dbus"
+}
