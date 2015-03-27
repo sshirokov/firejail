@@ -16,7 +16,7 @@ public:
 	~PidThread();
 
 signals:
-	void cycleReady(bool update);
+	void cycleReady();
 
 protected:
 	void run();

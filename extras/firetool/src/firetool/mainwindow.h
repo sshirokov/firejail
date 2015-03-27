@@ -24,14 +24,14 @@ protected:
 
 public slots:
 	void trayActivated(QSystemTrayIcon::ActivationReason);
-	void cycleReady(bool update);
+	void cycleReady();
 	
 private slots:
 	void edit();
 	void run();
 
 signals:
-	void cycleReadySignal(bool update);
+	void cycleReadySignal();
 
 	
 

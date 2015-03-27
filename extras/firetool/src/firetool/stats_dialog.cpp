@@ -6,9 +6,10 @@
 #include "graph.h"
 #include "../common/utils.h"
 #include "../../firetool_config.h"
+extern bool data_ready;
 
 
-StatsDialog::StatsDialog(): QDialog(), updated_(false), mode_(MODE_TOP), pid_(0), pid_seccomp_(-1), pid_caps_(QString("")) {
+StatsDialog::StatsDialog(): QDialog(), mode_(MODE_TOP), pid_(0), pid_seccomp_(-1), pid_caps_(QString("")) {
 	procView_ = new QTextBrowser;
 	procView_->setOpenLinks(false);
 	procView_->setOpenExternalLinks(false);
@@ -287,12 +288,8 @@ void StatsDialog::updatePid() {
 	procView_->setHtml(msg);
 }
 
-void StatsDialog::cycleReady(bool update) {
+void StatsDialog::cycleReady() {
 	if (isVisible()) {
-		if (updated_ == true && update ==false)
-			return;
-		updated_ = true;
-
 		if (mode_ == MODE_TOP)
 			updateTop();
 		else if (mode_ == MODE_PID)
@@ -311,7 +308,6 @@ void StatsDialog::anchorClicked(const QUrl & link) {
 	
 	if (linkstr == "top") {
 		mode_ = MODE_TOP;
-		updated_ = false;
 	}
 	else if (linkstr == "back") {
 		if (mode_ == MODE_PID)
@@ -325,19 +321,15 @@ void StatsDialog::anchorClicked(const QUrl & link) {
 		else if (mode_ == MODE_TOP);
 		else
 			assert(0);
-		updated_ = false;
 	}
 	else if (linkstr == "tree") {
 		mode_ = MODE_TREE;
-		updated_ = false;
 	}
 	else if (linkstr == "seccomp") {
 		mode_ = MODE_SECCOMP;
-		updated_ = false;
 	}
 	else if (linkstr == "dns") {
 		mode_ = MODE_DNS;
-		updated_ = false;
 	}
 	else if (linkstr == "shut") {
 		QMessageBox msgBox;
@@ -357,7 +349,6 @@ void StatsDialog::anchorClicked(const QUrl & link) {
 			QApplication::restoreOverrideCursor();	
 			mode_ = MODE_TOP;
 		}
-		updated_ = false;
 	}
 	else if (linkstr == "join") {
 		// join the process in a new xterm
@@ -367,7 +358,6 @@ void StatsDialog::anchorClicked(const QUrl & link) {
 			(void) rv;
 			free(cmd);
 		}
-		updated_ = false;
 	}
 	else if (linkstr == "about") {
 		QString msg = "<table cellpadding=\"10\"><tr><td><img src=\":/resources/firetool.png\"></td>";
@@ -389,7 +379,9 @@ void StatsDialog::anchorClicked(const QUrl & link) {
 		pid_seccomp_ = -1;
 		pid_caps_ = -1;
 		mode_ = MODE_PID;
-		updated_ = false;
-	}	
+	}
+	
+	if (data_ready)
+		cycleReady();
 }
 	

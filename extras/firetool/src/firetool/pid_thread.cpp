@@ -6,10 +6,12 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-
 #include "pid_thread.h"
 #include "../common/pid.h"
 #include <db.h>
+
+bool data_ready = false;
+
 
 PidThread::PidThread(): ending_(false) {
 	start();
@@ -89,15 +91,9 @@ void PidThread::run() {
 		}
 		
 		// sleep 5 seconds
-		msleep(1000);
-		emit cycleReady(false);
-		msleep(1000);
-		emit cycleReady(false);
-		msleep(1000);
-		emit cycleReady(false);
-		msleep(1000);
-		emit cycleReady(false);
-		msleep(1000);
+		msleep(4500);
+		data_ready = false;
+		msleep(500);
 		
 		// start a new database cycle
 		Db::instance().newCycle();
@@ -154,7 +150,8 @@ void PidThread::run() {
 		}
 		
 //		Db::instance().dbgprint();
-		emit cycleReady(true);
+		emit cycleReady();
+		data_ready = true;
 
 	}
 }

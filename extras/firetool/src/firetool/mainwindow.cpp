@@ -10,7 +10,7 @@ MainWindow::MainWindow(QWidget *parent): QWidget(parent, Qt::FramelessWindowHint
 	active_index_ = -1;
 	animation_id_ = 0;
 	stats_ = new StatsDialog();
-	connect(this, SIGNAL(cycleReadySignal(bool)), stats_, SLOT(cycleReady(bool)));
+	connect(this, SIGNAL(cycleReadySignal()), stats_, SLOT(cycleReady()));
 
 	
 	if (!which("firejail")) {
@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent): QWidget(parent, Qt::FramelessWindowHint
 	createTrayActions();
 	createLocalActions();
 	thread_ = new PidThread();
-	connect(thread_, SIGNAL(cycleReady(bool)), this, SLOT(cycleReady(bool)));
+	connect(thread_, SIGNAL(cycleReady()), this, SLOT(cycleReady()));
 
 	setContextMenuPolicy(Qt::ActionsContextMenu);
 	setToolTip(tr("Double click on an icon to open an application.\n"
@@ -31,9 +31,9 @@ MainWindow::MainWindow(QWidget *parent): QWidget(parent, Qt::FramelessWindowHint
 	setWindowTitle(tr("Firejail Tools"));
 }
 
-void MainWindow::cycleReady(bool update) {
+void MainWindow::cycleReady() {
 	if (stats_->isVisible()) {
-		emit cycleReadySignal(update);
+		emit cycleReadySignal();
 	}
 }
 
@@ -46,7 +46,6 @@ void MainWindow::run() {
 	int index = active_index_;
 	if (index != -1) {
 		if (index == 0) {
-			stats_->reset();
 			stats_->show();
 		}
 		else
@@ -100,7 +99,6 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent *event) {
 		int index = applications_get_index(pos);
 		if (index != -1) {
 			if (index == 0) {
-				stats_->reset();
 				stats_->show();
 			}
 			else

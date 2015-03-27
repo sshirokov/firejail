@@ -11,12 +11,9 @@ Q_OBJECT
 
 public:
 	StatsDialog();
-	void reset() {
-		updated_ = false;
-	}
 
 public slots:
-	void cycleReady(bool update);
+	void cycleReady();
 	void anchorClicked(const QUrl & link);
 
 private:
