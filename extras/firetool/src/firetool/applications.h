@@ -8,20 +8,16 @@
 #define MARGIN 5
 #define AFRAMES 6	// animation frames
 #define ADELAY 20		// animation delay
+#define ROWS 6
 
-QIcon getIcon(QString name);
 struct Application {
 	QString name_;
 	QString exec_;
 	QString icon_;
 	QIcon app_icon_;
 	
-	Application(const char *name, const char *exec, const char *icon):
-		name_(name), exec_(exec), icon_(icon) {
-		
-		exec_ += " &";
-		app_icon_ = getIcon(icon_);
-	};
+	Application(const char *name, const char *exec, const char *icon);
+	QIcon loadIcon(QString name);
 };
 
 extern QList<Application> applist;

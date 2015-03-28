@@ -5,28 +5,31 @@
 #include <QPainter>
 QList<Application> applist;
 
-
-
-QIcon getIcon(QString name) {
-
-#if 0
-	From: http://standards.freedesktop.org/icon-theme-spec/icon-theme-spec-latest.html
+Application::Application(const char *name, const char *exec, const char *icon):
+	name_(name), exec_(exec), icon_(icon) {
 	
-	Icons and themes are looked for in a set of directories. By default, apps should look 
-	in $HOME/.icons (for backwards compatibility), in $XDG_DATA_DIRS/icons and in /
-	usr/share/pixmaps (in that order). Applications may further add their own icon 
-	directories to this list, and users may extend or change the list (in application/desktop 
-	specific ways).In each of these directories themes are stored as subdirectories. 
-	A theme can be spread across several base directories by having subdirectories of 
-	the same name. This way users can extend and override system themes.
-	
-	In order to have a place for third party applications to install their icons there 
-	should always exist a theme called "hicolor" [1]. The data for the hicolor theme is 
-	available for download at: http://www.freedesktop.org/software/icon-theme/. I
-	mplementations are required to look in the "hicolor" theme if an icon was not found 
-	in the current theme. 
-#endif
+	exec_ += " &";
+	app_icon_ = loadIcon(icon_);
+};
 
+/*
+From: http://standards.freedesktop.org/icon-theme-spec/icon-theme-spec-latest.html
+
+Icons and themes are looked for in a set of directories. By default, apps should look 
+in $HOME/.icons (for backwards compatibility), in $XDG_DATA_DIRS/icons and in /
+usr/share/pixmaps (in that order). Applications may further add their own icon 
+directories to this list, and users may extend or change the list (in application/desktop 
+specific ways).In each of these directories themes are stored as subdirectories. 
+A theme can be spread across several base directories by having subdirectories of 
+the same name. This way users can extend and override system themes.
+
+In order to have a place for third party applications to install their icons there 
+should always exist a theme called "hicolor" [1]. The data for the hicolor theme is 
+available for download at: http://www.freedesktop.org/software/icon-theme/. I
+mplementations are required to look in the "hicolor" theme if an icon was not found 
+in the current theme. 
+*/
+QIcon Application::loadIcon(QString name) {
 	if (name.startsWith('/') || name.startsWith(":resources")) {
 		printf("icon %s: full path\n", name.toLocal8Bit().data());
 		return QIcon(name);
@@ -122,7 +125,7 @@ QIcon getIcon(QString name) {
 	pix.fill(Qt::red);
 	QPainter painter( &pix );
 	painter.setPen(Qt::white);
-	painter.setFont( QFont("Arial") );
+	painter.setFont(QFont("Sans"));
 	painter.drawText(3, 20, name);
 	painter.end();
 	QIcon icon(pix);
@@ -150,9 +153,9 @@ void applications_init() {
 		applist.append(Application("Opera Web Browser", "firejail opera", "opera"));
 
 	if (which("icedove"))
-		applist.append(Application("Debian Icedove", "firejail icedove", "icedove"));
+		applist.append(Application("Debian Icedove", "firejail icedove", ":resources/icedove.png"));
 	else if (which("thunderbird"))
-		applist.append(Application("Thunderbird", "firejail thunderbird", "thunderbird"));
+		applist.append(Application("Thunderbird", "firejail thunderbird", ":resources/icedove.png"));
 
 	if (which("evince"))
 		applist.append(Application("Evince PDF viewer", "firejail evince", "evince"));
@@ -180,12 +183,17 @@ void applications_init() {
 
 
 int applications_get_index(QPoint pos) {
+	int nelem = applist.count();
+	int cols = nelem / ROWS + 1;
+
 	if (pos.y() < (MARGIN * 2 + TOP))
 		return -1;
 
-	if (pos.x() > (MARGIN * 2) && pos.x() < (MARGIN * 2 + 64)) {
-		int nelem = applist.count();
-		int index = (pos.y() - 2 * MARGIN - TOP) / 64;
+	if (pos.x() > (MARGIN * 2) && pos.x() < (MARGIN * 2 + cols * 64)) {
+		int index_y = (pos.y() - 2 * MARGIN - TOP) / 64;
+		int index_x = (pos.x() - 2 * MARGIN) / 64;
+		int index = index_y + index_x * ROWS;
+
 		if (index < nelem) {
 			return index;
 		}

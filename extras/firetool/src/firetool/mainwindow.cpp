@@ -59,10 +59,13 @@ void MainWindow::run() {
 
 
 void MainWindow::mousePressEvent(QMouseEvent *event) {
+	int nelem = applist.count();
+	int cols = nelem / ROWS + 1;
+
 	if (event->button() == Qt::LeftButton) {
 		int x = event->pos().x();
 		int y = event->pos().y();
-		if (x >= MARGIN * 2 + 54 && x <= MARGIN * 2 + 68 &&
+		if (x >= MARGIN * 2 + cols * 64 - 8 && x <= MARGIN * 2 + cols * 64 + 4 &&
 			   y >= 4 && y <= 15) {
 			hide();
 			stats_->hide();
@@ -113,16 +116,20 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent *event) {
 }
 
 void MainWindow::paintEvent(QPaintEvent *) {
+	int nelem = applist.count();
+	int cols = nelem / ROWS + 1;
+
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::Antialiasing);
 	QSize sz = sizeHint();
-printf("width %d, height %d\n", sz.width(), sz.height());	
 	painter.fillRect(QRect(0, 0, sz.width(), sz.height()), QBrush(QColor(255, 20, 20)));
-return;
 
-	int nelem = applist.count();
-
-	for (int i = 0; i < nelem; i++) {
+	int i = 0;
+	int j = 0;
+	for (; i < nelem; i++, j++) {
+		if (j >= ROWS)
+			j = 0;
+			
 		QIcon icon = applist[i].app_icon_;
 		int sz = 64 ;
 		if (active_index_ == i) {
@@ -132,25 +139,27 @@ return;
 			sz -= id * 3;
 		}
 		QPixmap pixmap = icon.pixmap(QSize(sz, sz), QIcon::Normal, QIcon::On);
-		painter.drawPixmap(QPoint(MARGIN * 2 + (64 - sz) / 2, MARGIN *2 + i * 64 + TOP + (64 - sz) / 2), pixmap);
+		painter.drawPixmap(QPoint(MARGIN * 2 + (64 - sz) / 2 + (i / ROWS) * 64, MARGIN *2 + j * 64 + TOP + (64 - sz) / 2), pixmap);
 	}
 
 	// vertical bars
 	QPen pen1(Qt::black);
 	painter.setPen(pen1);
-	painter.drawLine(MARGIN * 2 + 20, MARGIN * 2 + TOP, MARGIN * 2 + 20, MARGIN * 2 + nelem * 64 + TOP);
-	painter.drawLine(MARGIN * 2 + 64 - 20, MARGIN * 2 + TOP, MARGIN * 2 + 64 - 20, MARGIN * 2 + nelem * 64 + TOP);
-
+	for (i = 0; i < cols; i++) {
+		painter.drawLine(MARGIN * 2 + i * 64 + 21, MARGIN * 2 + TOP, MARGIN * 2 + i * 64 + 21, MARGIN * 2 + nelem * 64 + TOP);
+		painter.drawLine(MARGIN * 2 + i * 64 + 43, MARGIN * 2 + TOP, MARGIN * 2 + i * 64 + 43, MARGIN * 2 + nelem * 64 + TOP);
+		painter.drawLine(MARGIN * 2 + i * 64 + 64, MARGIN * 2 + TOP, MARGIN * 2 + i * 64 + 64, MARGIN * 2 + nelem * 64 + TOP);
+	}
+	
 	// horizontal bars
-	int i;
-	for (i = 0; i < nelem - 1; i++) {
+	for (i = 0; i < ROWS - 1; i++) {
 		painter.drawLine(MARGIN * 2, MARGIN * 2 + 64 * (i + 1) - 1 + TOP,
-			MARGIN * 2 + 64, MARGIN * 2 + 64 * (i + 1) - 1 + TOP);
+			MARGIN * 2 + 64 * cols, MARGIN * 2 + 64 * (i + 1) - 1 + TOP);
 
 	}
 
 	// close button
-	painter.fillRect(QRect(MARGIN * 2 + 56, 8, 12, 3), QBrush(Qt::white));
+	painter.fillRect(QRect(MARGIN * 2 + cols * 64 - 8, 8, 12, 3), QBrush(Qt::white));
 	
 
 	painter.setFont(QFont("Sans", TOP, QFont::Normal));
@@ -169,11 +178,12 @@ return;
 
 void MainWindow::resizeEvent(QResizeEvent * /* event */) {
 	int nelem = applist.count();
+	int cols = nelem / ROWS + 1;
 	
 	// margins
-	QRegion m1(0, 0, 64 + MARGIN * 4, TOP + nelem * 64 + MARGIN * 4);
-	QRegion m2(MARGIN, MARGIN + TOP, 64 + MARGIN * 2, nelem * 64 + MARGIN * 2);
-	QRegion m3(MARGIN * 2, MARGIN *2 + TOP, 64, nelem * 64);
+	QRegion m1(0, 0, cols * 64 + MARGIN * 4, TOP + ROWS * 64 + MARGIN * 4);
+	QRegion m2(MARGIN, MARGIN + TOP, cols * 64 + MARGIN * 2, ROWS * 64 + MARGIN * 2);
+	QRegion m3(MARGIN * 2, MARGIN * 2 + TOP, cols * 64, ROWS * 64);
 	
 	QRegion all = m1.subtracted(m2);
 	all = all.united(m3);
@@ -185,7 +195,9 @@ void MainWindow::resizeEvent(QResizeEvent * /* event */) {
 QSize MainWindow::sizeHint() const
 {
 	int nelem = applist.count();
-	return QSize(64 + MARGIN * 4, nelem * 64 + MARGIN * 4 + TOP);
+	int cols = nelem / ROWS + 1;
+	
+	return QSize(64 * cols + MARGIN * 4, ROWS * 64 + MARGIN * 4 + TOP);
 }
 
 

@@ -2,5 +2,6 @@
 <qresource prefix="/">
    <file>resources/firetool.png</file>
    <file>resources/firestats.png</file>
+   <file>resources/icedove.png</file>
 </qresource>
 </RCC>
