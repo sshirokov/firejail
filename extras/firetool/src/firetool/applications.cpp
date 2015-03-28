@@ -165,8 +165,11 @@ void applications_init() {
 	if (which("vlc"))
 		applist.append(Application("VideoLAN Client", "firejail vlc", "vlc"));
 
-	applist.append(Application("unknown", "unknown", "unknown"));
+        if (which("rhythmbox"))
+                applist.append(Application("Rhythmbox", "firejail rhythmbox", "rhythmbox"));
 
+        if (which("totem"))
+                applist.append(Application("Totem", "firejail totem", "totem"));
 }
 
 
