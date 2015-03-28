@@ -2,6 +2,7 @@
 #include "applications.h"
 #include "../common/utils.h"
 #include <QDirIterator>
+#include <QPainter>
 QList<Application> applist;
 
 
@@ -27,15 +28,26 @@ QIcon getIcon(QString name) {
 #endif
 
 	if (name.startsWith('/') || name.startsWith(":resources")) {
-		printf("icon %s: full path or resources\n", name.toLocal8Bit().data());
+		printf("icon %s: full path\n", name.toLocal8Bit().data());
 		return QIcon(name);
 	}
 	
 	// look for the file in firejail config directory under /home/user
 	QString conf = QDir::homePath() + "/.config/firejail/" + name + ".png";
-	
-	QFileInfo checkFile(conf);
-	if (checkFile.exists() && checkFile.isFile()) {
+	QFileInfo checkFile1(conf);
+	if (checkFile1.exists() && checkFile1.isFile()) {
+		printf("icon %s: local config dir\n", name.toLocal8Bit().data());
+		return QIcon(conf);
+	}
+	conf = QDir::homePath() + "/.config/firejail/" + name + ".jpg";
+	QFileInfo checkFile2(conf);
+	if (checkFile2.exists() && checkFile2.isFile()) {
+		printf("icon %s: local config dir\n", name.toLocal8Bit().data());
+		return QIcon(conf);
+	}
+	conf = QDir::homePath() + "/.config/firejail/" + name + ".svg";
+	QFileInfo checkFile3(conf);
+	if (checkFile3.exists() && checkFile3.isFile()) {
 		printf("icon %s: local config dir\n", name.toLocal8Bit().data());
 		return QIcon(conf);
 	}
@@ -76,7 +88,7 @@ QIcon getIcon(QString name) {
 			}
 		}
 	}
-	
+
 	{	
 		QDirIterator it("/usr/share/pixmaps", QDirIterator::Subdirectories);
 		while (it.hasNext()) {
@@ -84,7 +96,17 @@ QIcon getIcon(QString name) {
 			QFileInfo fi = it.fileInfo();
 			if (fi.isFile() && fi.baseName() == name) {
 				printf("icon %s: /usr/share/pixmaps\n", name.toLocal8Bit().data());
-				return QIcon(fi.canonicalFilePath());
+				QIcon icon = QIcon(fi.canonicalFilePath());
+#if 0 // scale				
+				QSize sz = icon.actualSize(QSize(64, 64));
+				if (sz.height() < 64 && sz.width() < 64) {
+					QPixmap pix = icon.pixmap(sz.height(), sz.width());
+					QPixmap newpix = pix.scaled(50, 50);
+					return QIcon(newpix);
+				}
+#endif
+				return icon;
+				
 			}
 		}
 	}	
@@ -94,9 +116,17 @@ QIcon getIcon(QString name) {
 		return QIcon::fromTheme(name);
 	}
 	
-	
-	//UNKNOWN
-	return QIcon::fromTheme("unknown");
+	// create a new icon
+	printf("icon %s: created\n", name.toLocal8Bit().data());
+	QPixmap pix(64, 64);
+	pix.fill(Qt::red);
+	QPainter painter( &pix );
+	painter.setPen(Qt::white);
+	painter.setFont( QFont("Arial") );
+	painter.drawText(3, 20, name);
+	painter.end();
+	QIcon icon(pix);
+	return icon;
 }
 
 
@@ -111,8 +141,8 @@ void applications_init() {
 	if (which("chromium"))
 		applist.append(Application("Chromium Web Browser", "firejail chromium", "chromium"));
 	else if (which("chromium-browser"))
-		applist.append(Application("Chromium Web Browser", "firejail chromium-browser", "chromium"));
-
+		applist.append(Application("Chromium Web Browser", "firejail chromium-browser", "chromium-browser"));
+	
 	if (which("midori"))
 		applist.append(Application("Midori Web Browser", "firejail midori", "midori"));
 
@@ -134,6 +164,9 @@ void applications_init() {
 
 	if (which("vlc"))
 		applist.append(Application("VideoLAN Client", "firejail vlc", "vlc"));
+
+	applist.append(Application("unknown", "unknown", "unknown"));
+
 }
 
 

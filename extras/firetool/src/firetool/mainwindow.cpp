@@ -122,7 +122,7 @@ void MainWindow::paintEvent(QPaintEvent *) {
 	int nelem = applist.count();
 
 	for (int i = 0; i < nelem; i++) {
-		QIcon icon = getIcon(applist[i].icon_);
+		QIcon icon = applist[i].app_icon_;
 		int sz = 64 ;
 		if (active_index_ == i) {
 			int id = animation_id_;

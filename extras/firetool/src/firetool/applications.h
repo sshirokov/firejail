@@ -6,23 +6,26 @@
 
 #define TOP 10
 #define MARGIN 5
-#define AFRAMES 6		// animation frames
+#define AFRAMES 6	// animation frames
 #define ADELAY 20		// animation delay
 
+QIcon getIcon(QString name);
 struct Application {
 	QString name_;
 	QString exec_;
 	QString icon_;
+	QIcon app_icon_;
+	
 	Application(const char *name, const char *exec, const char *icon):
 		name_(name), exec_(exec), icon_(icon) {
 		
 		exec_ += " &";
+		app_icon_ = getIcon(icon_);
 	};
 };
 
 extern QList<Application> applist;
 void applications_init();
 int applications_get_index(QPoint pos);
-QIcon getIcon(QString name);
 
 #endif
