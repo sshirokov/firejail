@@ -111,7 +111,7 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent *event) {
 	}
 }
 
-
+extern QIcon getIcon(QString iconName);
 void MainWindow::paintEvent(QPaintEvent *) {
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::Antialiasing);
@@ -122,7 +122,7 @@ void MainWindow::paintEvent(QPaintEvent *) {
 	int nelem = applist.count();
 
 	for (int i = 0; i < nelem; i++) {
-		QIcon icon(applist[i].icon_);	
+		QIcon icon = getIcon(applist[i].icon_);
 		int sz = 64 ;
 		if (active_index_ == i) {
 			int id = animation_id_;

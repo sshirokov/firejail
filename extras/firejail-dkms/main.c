@@ -1,4 +1,5 @@
 #include "firejail.h"
+#include <linux/nsproxy.h>
 
 #define PROC_FILE_NAME	"firejail"
 #define PROC_UPTIME		"firejail-uptime"

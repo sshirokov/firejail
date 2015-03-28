@@ -1,6 +1,7 @@
 #include <QtGui>
 #include <QUrl>
 #include <assert.h>
+#include <sys/utsname.h>
 #include "stats_dialog.h"
 #include "db.h"
 #include "graph.h"
@@ -9,7 +10,7 @@
 extern bool data_ready;
 
 
-StatsDialog::StatsDialog(): QDialog(), mode_(MODE_TOP), pid_(0), pid_seccomp_(-1), pid_caps_(QString("")) {
+StatsDialog::StatsDialog(): QDialog(), mode_(MODE_TOP), pid_(0), pid_seccomp_(-1), pid_caps_(QString("")), have_join_(true) {
 	procView_ = new QTextBrowser;
 	procView_->setOpenLinks(false);
 	procView_->setOpenExternalLinks(false);
@@ -22,6 +23,20 @@ StatsDialog::StatsDialog(): QDialog(), mode_(MODE_TOP), pid_(0), pid_seccomp_(-1
 	setLayout(layout);
 	resize(600, 500);
 	setWindowTitle(tr("Firejail Tools&Stats"));
+	
+	// detect if joining a sandbox is possible on this system
+	struct utsname u;
+	int rv = uname(&u);
+	if (rv == 0) {
+		int major;
+		int minor;
+		if (2 == sscanf(u.release, "%d.%d", &major, &minor)) {
+			if (major < 3)
+				have_join_ = false;
+			else if (major == 3 && minor < 8)
+				have_join_ = false;
+		}
+	}
 }
 
 QString StatsDialog::header() {
@@ -31,24 +46,25 @@ QString StatsDialog::header() {
 		msg += "<a href=\"about\">About</a>";
 		msg += "</td></tr></table>";
 	}
-	else if (mode_ == MODE_PID) {
+	
+	if (mode_ == MODE_PID) {
 		msg += "<table><tr><td width=\"5\"></td><td>";
 		msg += "<a href=\"top\">Home</a>";
-		msg += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"about\">About</a>";
-		msg += "</td></tr></table>";
-	}
-	else { // tree, seccomp, dns
-		msg += "<table><tr><td width=\"5\"></td><td>";
-		msg += "<a href=\"back\">Back</a>";
-		msg += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"top\">Home</a>";
-		msg += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"about\">About</a>";
+		msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"shut\">Shutdown</a>";
+		if (have_join_)
+			msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"join\">Join</a>";
+		msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"tree\">Process Tree</a>";
+		msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"dns\">DNS</a>";
 		msg += "</td></tr></table>";
 	}
 	
-	if (mode_ == MODE_PID || mode_ == MODE_TREE || mode_ == MODE_SECCOMP || mode_ == MODE_DNS) {
+	if (mode_ == MODE_TREE || mode_ == MODE_SECCOMP || mode_ == MODE_DNS) {
 		msg += "<table><tr><td width=\"5\"></td><td>";
-		msg += "<a href=\"shut\">Shutdown</a>";
-		msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"join\">Join</a>";
+		msg += "<a href=\"top\">Home</a>";
+		msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"back\">" + QString::number(pid_) + "</a>";
+		msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"shut\">Shutdown</a>";
+		if (have_join_)
+			msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"join\">Join</a>";
 		msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"tree\">Process Tree</a>";
 		msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"dns\">DNS</a>";
 		msg += "</td></tr></table>";
@@ -119,14 +135,13 @@ void StatsDialog::updateTree() {
 	}		
 	free(cmd);
 
-	msg += "</td></tr></table><hr>" + header();
+	msg += "</td></tr></table>";
 	procView_->setHtml(msg);
 }
 
 void StatsDialog::updateSeccomp() {
 	QString msg = header();
 	msg += "<hr><table><tr><td width=\"5\"></td><td>";
-	msg += "Sandbox PID " + QString::number(pid_) + "<br />";
 		
 	char *str = 0;
 	char *cmd;
@@ -152,14 +167,13 @@ void StatsDialog::updateSeccomp() {
 	}		
 	free(cmd);
 
-	msg += "</td></tr></table><hr>" + header();
+	msg += "</td></tr></table>";
 	procView_->setHtml(msg);
 }
 
 void StatsDialog::updateDns() {
 	QString msg = header();
 	msg += "<hr><table><tr><td width=\"5\"></td><td>";
-	msg += "Sandbox PID " + QString::number(pid_) + "<br />";
 		
 	char *str = 0;
 	char *cmd;
@@ -185,40 +199,43 @@ void StatsDialog::updateDns() {
 	}		
 	free(cmd);
 
-	msg += "</td></tr></table><hr>" + header();
+	msg += "</td></tr></table>";
 	procView_->setHtml(msg);
 }
 
 void StatsDialog::kernelSecuritySettings() {
 	pid_seccomp_ = 0;
 	pid_caps_ = QString("");
-	
+
 	char *cmd;
-	if (asprintf(&cmd, "firemon --seccomp %d", pid_) == -1)
-		return;
-	char *str = run_program(cmd);
-	if (str) {
-		char *ptr = strstr(str, "Seccomp");
-		if (!ptr) {
-			free(cmd);
-			return;
-		}
-		if (strstr(ptr, "2"))
-			pid_seccomp_ = 1;
-	}
-	free(cmd);
 	
 	if (asprintf(&cmd, "firemon --caps %d", pid_) == -1)
 		return;
-	str = run_program(cmd);
+	char *str = run_program(cmd);
 	if (str) {
 		char *ptr = strstr(str, "CapBnd:");
-		if (!ptr) {
-			free(cmd);
-			return;
-		}
-		pid_caps_ = QString(ptr + 7);
+		if (ptr)
+			pid_caps_ = QString(ptr + 7);
+		else
+			pid_caps_ = QString("");
 	}
+	free(cmd);
+
+	if (asprintf(&cmd, "firemon --seccomp %d", pid_) == -1)
+		return;
+	str = run_program(cmd);
+	if (str) {
+		char *ptr = strstr(str, "Seccomp");
+		if (ptr) {
+			if (strstr(ptr, "2"))
+				pid_seccomp_ = 1;
+			else
+				pid_seccomp_ = 0;
+		}
+		else
+			pid_seccomp_ = 0;
+	}
+	free(cmd);
 }
 	
 void StatsDialog::updatePid() {
@@ -246,7 +263,7 @@ void StatsDialog::updatePid() {
 	
 	DbStorage *st = &ptr->data_[cycle];
 
-	msg += header() + "<hr>";
+	msg += header();
 	msg += "<table><tr><td width=\"5\"></td><td>Command: " + QString(cmd) + "</td></tr></table><br/>";
 
 	msg += "<table>";
@@ -284,7 +301,6 @@ void StatsDialog::updatePid() {
 		msg += "<tr><td></td><td>"+ graph(2, ptr, cycle) + "</td><td>" + graph(3, ptr, cycle) + "</td></tr>";
 
 	msg += QString("</table><br/>");
-	msg += "<hr>" + header();
 	procView_->setHtml(msg);
 }
 

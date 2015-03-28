@@ -2,7 +2,7 @@
 #define APPLICATIONS_H
 #include <QList>
 #include <QString>
-#include <QPoint>
+#include <QIcon>
 
 #define TOP 10
 #define MARGIN 5
@@ -23,5 +23,6 @@ struct Application {
 extern QList<Application> applist;
 void applications_init();
 int applications_get_index(QPoint pos);
+QIcon getIcon(QString name);
 
 #endif

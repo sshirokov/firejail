@@ -242,6 +242,9 @@ void net_dns_print_name(const char *name) {
 
 #define MAXBUF 4096
 void net_dns_print(pid_t pid) {
+	// drop privileges
+	drop_privs(1);
+
 	// if the pid is that of a firejail  process, use the pid of the first child process
 	char *comm = pid_proc_comm(pid);
 	if (comm) {
@@ -258,15 +261,12 @@ void net_dns_print(pid_t pid) {
 		free(comm);
 	}
 	
-	// join the mount namespace
-	if (join_namespace(pid, "mnt"))
-		exit(1);
-
-	// drop privileges
-	drop_privs(1);
-
+	char *fname;
+	if (asprintf(&fname, "/proc/%d/root/etc/resolv.conf", pid) == -1)
+		errExit("asprintf");
+		
 	// access /etc/resolv.conf
-	FILE *fp = fopen("/etc/resolv.conf", "r");
+	FILE *fp = fopen(fname, "r");
 	if (!fp) {
 		fprintf(stderr, "Error: cannot access /etc/resolv.conf\n");
 		exit(1);
@@ -277,5 +277,6 @@ void net_dns_print(pid_t pid) {
 		printf("%s", buf);
 	printf("\n");
 	fclose(fp);
+	free(fname);
 	exit(0);
 }

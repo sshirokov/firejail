@@ -37,6 +37,7 @@ private:
 	int pid_;	// pid value for mode 1
 	int pid_seccomp_;
 	QString pid_caps_;
+	bool have_join_;
 };
 
 
