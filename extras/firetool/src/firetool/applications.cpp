@@ -170,6 +170,12 @@ void applications_init() {
 
         if (which("totem"))
                 applist.append(Application("Totem", "firejail totem", "totem"));
+
+        if (which("audacious"))
+                applist.append(Application("Audacious", "firejail audacious", "audacious"));
+
+        if (which("gnome-mplayer"))
+                applist.append(Application("GNOME MPlayer", "firejail gnome-mplayer", "gnome-mplayer"));
 }
 
 

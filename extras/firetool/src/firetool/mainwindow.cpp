@@ -29,6 +29,7 @@ MainWindow::MainWindow(QWidget *parent): QWidget(parent, Qt::FramelessWindowHint
 		"Drag the launcher with the left mouse button.\n"
 		"Use the right mouse button to open a context menu."));
 	setWindowTitle(tr("Firejail Tools"));
+	
 }
 
 void MainWindow::cycleReady() {
@@ -111,13 +112,13 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent *event) {
 	}
 }
 
-extern QIcon getIcon(QString iconName);
 void MainWindow::paintEvent(QPaintEvent *) {
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::Antialiasing);
 	QSize sz = sizeHint();
+printf("width %d, height %d\n", sz.width(), sz.height());	
 	painter.fillRect(QRect(0, 0, sz.width(), sz.height()), QBrush(QColor(255, 20, 20)));
-
+return;
 
 	int nelem = applist.count();
 
