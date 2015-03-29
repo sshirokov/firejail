@@ -338,12 +338,16 @@ static void write_seccomp_file(void) {
 }
 
 // read seccomp filter from /tmp/firejail/mnt/seccomp
-static void read_seccomp_file(void) {
+static void read_seccomp_file(char *file_name) {
 	assert(sfilter == NULL && sfilter_index == 0);
 
 	char *fname;
-	if (asprintf(&fname, "%s/seccomp", MNT_DIR) == -1)
-		errExit("asprintf");
+	if (file_name)
+		fname = file_name;
+	else {
+		if (asprintf(&fname, "%s/seccomp", MNT_DIR) == -1)
+			errExit("asprintf");
+	}
 		
 	// check file
 	struct stat s;
@@ -508,7 +512,7 @@ int seccomp_filter_keep(void) {
 
 void seccomp_set(void) {
 	// read seccomp filter from  /tmp/firejail/mnt/seccomp
-	read_seccomp_file();
+	read_seccomp_file(NULL);
 	
 	// apply filter
 	struct sock_fprog prog = {
@@ -555,26 +559,39 @@ void seccomp_print_filter(pid_t pid) {
 		}
 		free(comm);
 	}
-	
-	// join the mount namespace
-	if (join_namespace(pid, "mnt"))
-		exit(1);
 
-	// find the seccomp file
+	// check privileges for non-root users
+	uid_t uid = getuid();
+	if (uid != 0) {
+		struct stat s;
+		char *dir;
+		if (asprintf(&dir, "/proc/%u/ns", pid) == -1)
+			errExit("asprintf");
+		if (stat(dir, &s) < 0)
+			errExit("stat");
+		if (s.st_uid != uid) {
+			printf("Error: permission denied.\n");
+			exit(1);
+		}
+	}
+
+
+	// find the seccomp filter
+	char *fname;
+	if (asprintf(&fname, "/proc/%d/root/tmp/firejail/mnt/seccomp", pid) == -1)
+		errExit("asprintf");
+
 	struct stat s;
-	if (stat("/tmp/firejail/mnt/seccomp", &s) == -1) {
-		printf("This sandbox doesn't uses seccomp-bpf.\n");
+	if (stat(fname, &s) == -1) {
+		printf("Cannot access seccomp filter.\n");
 		exit(1);
 	}
-		
-	// read filter file	
-	read_seccomp_file();
 
-	// drop privileges
+	// read and print the filter
+	read_seccomp_file(fname);
 	drop_privs(1);
-
-	// print filter
 	filter_debug();
+
 	exit(0);
 }
 

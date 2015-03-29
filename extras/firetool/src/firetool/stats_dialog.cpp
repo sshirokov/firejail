@@ -108,6 +108,17 @@ void StatsDialog::updateTop() {
 
 
 void StatsDialog::updateTree() {
+	int cycle = Db::instance().getCycle();
+	assert(cycle < DbPid::MAXCYCLE);
+	DbPid *dbptr = Db::instance().findPid(pid_);
+	if (!dbptr) {
+		QString msg = "Process not found!<br/>";
+		msg += "<hr>" + header();
+		procView_->setHtml(msg);
+		mode_ = MODE_TOP;
+		return;
+	}
+
 	QString msg = header();
 	msg += "<hr><table><tr><td width=\"5\"></td><td>";
 		
@@ -140,6 +151,17 @@ void StatsDialog::updateTree() {
 }
 
 void StatsDialog::updateSeccomp() {
+	int cycle = Db::instance().getCycle();
+	assert(cycle < DbPid::MAXCYCLE);
+	DbPid *dbptr = Db::instance().findPid(pid_);
+	if (!dbptr) {
+		QString msg = "Process not found!<br/>";
+		msg += "<hr>" + header();
+		procView_->setHtml(msg);
+		mode_ = MODE_TOP;
+		return;
+	}
+
 	QString msg = header();
 	msg += "<hr><table><tr><td width=\"5\"></td><td>";
 		
@@ -172,6 +194,17 @@ void StatsDialog::updateSeccomp() {
 }
 
 void StatsDialog::updateDns() {
+	int cycle = Db::instance().getCycle();
+	assert(cycle < DbPid::MAXCYCLE);
+	DbPid *dbptr = Db::instance().findPid(pid_);
+	if (!dbptr) {
+		QString msg = "Process not found!<br/>";
+		msg += "<hr>" + header();
+		procView_->setHtml(msg);
+		mode_ = MODE_TOP;
+		return;
+	}
+
 	QString msg = header();
 	msg += "<hr><table><tr><td width=\"5\"></td><td>";
 		
