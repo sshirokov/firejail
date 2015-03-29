@@ -193,7 +193,7 @@ void applications_init() {
 		applist.append(Application("GNOME MPlayer", "firejail gnome-mplayer", "gnome-mplayer"));
 
 	if (which("clementine"))
-		applist.append(Application("Clementine", "firejail clementine", "clementine"));
+		applist.append(Application("Clementine", "firejail clementine", "application-x-clementine"));
 }
 
 
