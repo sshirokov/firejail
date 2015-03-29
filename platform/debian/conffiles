@@ -14,3 +14,8 @@
 /etc/firejail/transmission-gtk.profile
 /etc/firejail/transmission-qt.profile
 /etc/firejail/vlc.profile
+/etc/firejail/audacious.profile
+/etc/firejail/clementine.profile
+/etc/firejail/gnome-mplayer.profile
+/etc/firejail/rhythmbox.profile
+/etc/firejail/totem.profile

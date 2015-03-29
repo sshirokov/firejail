@@ -68,6 +68,11 @@ install: all
 	install -c -m 0644 RELNOTES $(DESTDIR)/$(DOCDIR)/.
 	# etc files
 	mkdir -p $(DESTDIR)/etc/firejail
+	install -c -m 0644 etc/audacious.profile $(DESTDIR)/etc/firejail/.
+	install -c -m 0644 etc/clementine.profile $(DESTDIR)/etc/firejail/.
+	install -c -m 0644 etc/gnome-mplayer.profile $(DESTDIR)/etc/firejail/.
+	install -c -m 0644 etc/rhythmbox.profile $(DESTDIR)/etc/firejail/.
+	install -c -m 0644 etc/totem.profile $(DESTDIR)/etc/firejail/.
 	install -c -m 0644 etc/firefox.profile $(DESTDIR)/etc/firejail/.
 	install -c -m 0644 etc/icedove.profile $(DESTDIR)/etc/firejail/.
 	install -c -m 0644 etc/iceweasel.profile $(DESTDIR)/etc/firejail/.

@@ -180,17 +180,20 @@ void applications_init() {
 	if (which("vlc"))
 		applist.append(Application("VideoLAN Client", "firejail vlc", "vlc"));
 
-        if (which("rhythmbox"))
-                applist.append(Application("Rhythmbox", "firejail rhythmbox", "rhythmbox"));
+	if (which("rhythmbox"))
+		applist.append(Application("Rhythmbox", "firejail rhythmbox", "rhythmbox"));
 
-        if (which("totem"))
-                applist.append(Application("Totem", "firejail totem", "totem"));
+	if (which("totem"))
+		applist.append(Application("Totem", "firejail totem", "totem"));
 
-        if (which("audacious"))
-                applist.append(Application("Audacious", "firejail audacious", "audacious"));
+	if (which("audacious"))
+		applist.append(Application("Audacious", "firejail audacious", "audacious"));
 
-        if (which("gnome-mplayer"))
-                applist.append(Application("GNOME MPlayer", "firejail gnome-mplayer", "gnome-mplayer"));
+	if (which("gnome-mplayer"))
+		applist.append(Application("GNOME MPlayer", "firejail gnome-mplayer", "gnome-mplayer"));
+
+	if (which("clementine"))
+		applist.append(Application("Clementine", "firejail clementine", "clementine"));
 }
 
 
