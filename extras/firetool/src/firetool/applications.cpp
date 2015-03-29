@@ -57,6 +57,18 @@ QIcon Application::loadIcon(QString name) {
 	
 	
 	{
+		QDirIterator it("/usr/share/icons/hicolor/scalable", QDirIterator::Subdirectories);
+		while (it.hasNext()) {
+			it.next();
+			QFileInfo fi = it.fileInfo();
+			if (fi.isFile() && fi.baseName() == name) {
+				printf("icon %s: scalable\n", name.toLocal8Bit().data());
+				return QIcon(fi.canonicalFilePath());
+			}
+		}
+	}
+
+	{
 		QDirIterator it("/usr/share/icons/hicolor/64x64", QDirIterator::Subdirectories);
 		while (it.hasNext()) {
 			it.next();
