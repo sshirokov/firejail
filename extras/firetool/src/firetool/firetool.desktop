@@ -1,8 +1,0 @@
-[Desktop Entry]
-Name=Firejail Tools
-Comment=Firejail user interface
-Exec=firetool
-Icon=firetool
-Terminal=false
-Type=Application
-Categories=Qt;System;Security;
