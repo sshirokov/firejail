@@ -116,6 +116,7 @@ void StatsDialog::updateTree() {
 		msg += "<hr>" + header();
 		procView_->setHtml(msg);
 		mode_ = MODE_TOP;
+		QTimer::singleShot(2000, this, SLOT(cycleReady()));
 		return;
 	}
 
@@ -159,6 +160,7 @@ void StatsDialog::updateSeccomp() {
 		msg += "<hr>" + header();
 		procView_->setHtml(msg);
 		mode_ = MODE_TOP;
+		QTimer::singleShot(2000, this, SLOT(cycleReady()));
 		return;
 	}
 
@@ -202,6 +204,7 @@ void StatsDialog::updateCaps() {
 		msg += "<hr>" + header();
 		procView_->setHtml(msg);
 		mode_ = MODE_TOP;
+		QTimer::singleShot(2000, this, SLOT(cycleReady()));
 		return;
 	}
 
@@ -245,6 +248,7 @@ void StatsDialog::updateDns() {
 		msg += "<hr>" + header();
 		procView_->setHtml(msg);
 		mode_ = MODE_TOP;
+		QTimer::singleShot(2000, this, SLOT(cycleReady()));
 		return;
 	}
 
@@ -326,6 +330,7 @@ void StatsDialog::updatePid() {
 		msg += "<hr>" + header();
 		procView_->setHtml(msg);
 		mode_ = MODE_TOP;
+		QTimer::singleShot(2000, this, SLOT(cycleReady()));
 		return;
 	}
 
@@ -335,6 +340,7 @@ void StatsDialog::updatePid() {
 		msg += "<hr>" + header();
 		procView_->setHtml(msg);
 		mode_ = MODE_TOP;
+		QTimer::singleShot(2000, this, SLOT(cycleReady()));
 		return;
 	}
 	
