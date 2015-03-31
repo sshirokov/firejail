@@ -25,8 +25,10 @@
 #include <linux/capability.h>
 #include <linux/audit.h>
 #include <sys/prctl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
-// todo: figure out where this definitins should be; on Debian 7 capget and <sys/capability.h> are not found
 extern int capget(cap_user_header_t hdrp, cap_user_data_t datap);
 extern int capset(cap_user_header_t hdrp, const cap_user_data_t datap);
 
@@ -39,6 +41,7 @@ typedef struct {
 static CapsEntry capslist[] = {
 //
 // code generated using tools/extract-caps
+// updated manually based on kernel 3.18/include/linux/capability.h (added block suspend and audit_read
 //
 #ifdef CAP_CHOWN
 	{"chown", CAP_CHOWN },
@@ -148,6 +151,17 @@ static CapsEntry capslist[] = {
 #ifdef CAP_WAKE_ALARM
 	{"wake_alarm", CAP_WAKE_ALARM },
 #endif
+// not in Debian 7
+#ifdef CAP_BLOCK_SUSPEND
+	{"block_suspend", CAP_BLOCK_SUSPEND },
+#else	
+	{"block_suspend", 36 },
+#endif
+#ifdef CAP_AUDIT_READ
+	{"audit_read", CAP_AUDIT_READ },
+#else	
+	{"audit_read", 37 },
+#endif
 
 //
 // end of generated code
@@ -229,6 +243,7 @@ void caps_print(void) {
 		printf("%d\t- %s\n", capslist[i].nr, capslist[i].name);
 	}
 }
+
 
 
 
@@ -329,4 +344,96 @@ void caps_keep_list(const char *clist) {
 	filter = 0;
 	caps_check_list(clist, caps_set_bit);
 	caps_set(filter);
+}
+
+#define MAXBUF 4098
+static uint64_t extract_caps(int pid) {
+	char *file;
+	if (asprintf(&file, "/proc/%d/status", pid) == -1) {
+		errExit("asprintf");
+		exit(1);
+	}
+
+	FILE *fp = fopen(file, "r");
+	if (!fp) {
+		printf("Error: cannot open %s\n", file);
+		free(file);
+		exit(1);
+	}
+	
+	char buf[MAXBUF];
+	while (fgets(buf, MAXBUF, fp)) {
+		if (strncmp(buf, "CapBnd:", 7) == 0) {
+			char *ptr = buf + 8;
+			unsigned long long val;
+			sscanf(ptr, "%llx", &val);
+			free(file);
+			fclose(fp);
+			return val;
+		}
+	}
+	fclose(fp);
+	free(file);
+	printf("Error: cannot read caps configuration\n");
+	exit(1);
+}
+
+
+void caps_print_filter_name(const char *name) {
+	if (!name || strlen(name) == 0) {
+		fprintf(stderr, "Error: invalid sandbox name\n");
+		exit(1);
+	}
+	pid_t pid;
+	if (name2pid(name, &pid)) {
+		fprintf(stderr, "Error: cannot find sandbox %s\n", name);
+		exit(1);
+	}
+
+	caps_print_filter(pid);
+}
+
+void caps_print_filter(pid_t pid) {
+	// if the pid is that of a firejail  process, use the pid of the first child process
+	char *comm = pid_proc_comm(pid);
+	if (comm) {
+		// remove \n
+		char *ptr = strchr(comm, '\n');
+		if (ptr)
+			*ptr = '\0';
+		if (strcmp(comm, "firejail") == 0) {
+			pid_t child;
+			if (find_child(pid, &child) == 0) {
+				pid = child;
+			}
+		}
+		free(comm);
+	}
+
+	// check privileges for non-root users
+	uid_t uid = getuid();
+	if (uid != 0) {
+		struct stat s;
+		char *dir;
+		if (asprintf(&dir, "/proc/%u/ns", pid) == -1)
+			errExit("asprintf");
+		if (stat(dir, &s) < 0)
+			errExit("stat");
+		if (s.st_uid != uid) {
+			printf("Error: permission denied.\n");
+			exit(1);
+		}
+	}
+
+	uint64_t caps = extract_caps(pid);
+	drop_privs(1);
+
+	int i;
+	uint64_t mask;
+	int elems = sizeof(capslist) / sizeof(capslist[0]);
+	for (i = 0, mask = 1; i < elems; i++, mask <<= 1) {
+		printf("%-18.18s  - %s\n", capslist[i].name, (mask & caps)? "enabled": "disabled");
+	}
+
+	exit(0);
 }

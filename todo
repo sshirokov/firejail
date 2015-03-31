@@ -296,4 +296,8 @@ return (cur->user + cur->kernel + cur->nice);
 243         fclose(f);
 244         mem_stats_buf->used = mem_stats_buf->total - mem_stats_buf->free;
 
-       
+* systemd-nspawn seems to denay: 
+                 --capability)
+                         comps='CAP_BLOCK_SUSPEND CAP_IPC_LOCK CAP_MAC_ADMIN CAP_MAC_OVERRIDE CAP_SYS_MODULE CAP_SYS_PACCT CAP_SYS_RAWIO
+                                       CAP_SYS_TIME CAP_SYSLOG CAP_WAKE_ALARM CAP_NET_ADMIN'
+     

@@ -45,6 +45,12 @@ Blacklist Linux capabilities filter.
 \fB\-\-caps.keep=capability,capability,capability
 Whitelist Linux capabilities filter.
 .TP
+\fB\-\-caps.print=name
+Print the caps filter for the sandbox started using \-\-name option.
+.TP
+\fB\-\-caps.print=pid
+Print the caps filter for the specified sandbox.
+.TP
 \fB\-\-cgroup=tasks-file
 Place the sandbox in the specified control group. tasks-file is the full path of cgroup tasks file.
 Example: \-\-cgroup=/sys/fs/cgroup/g1/tasks
@@ -143,7 +149,11 @@ Enable the default client network filter in the new network namespace:
 .br
 \-A INPUT \-m state \-\-state RELATED,ESTABLISHED \-j ACCEPT
 .br
-\-A INPUT \-p icmp \-j ACCEPT
+\-A INPUT \-p icmp \-\-icmp-type destination-unreachable \-j ACCEPT
+.br
+\-A INPUT \-p icmp \-\-icmp-type time-exceeded \-j ACCEPT
+.br
+\-A INPUT \-p icmp \-\-icmp-type echo-request \-j ACCEPT
 .br
 COMMIT
 .TP

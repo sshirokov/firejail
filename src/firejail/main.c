@@ -253,6 +253,18 @@ int main(int argc, char **argv) {
 			exit(0);
 		}
 #endif
+		else if (strncmp(argv[i], "--caps.print=", 13) == 0) {
+			// join sandbox by pid or by name
+			pid_t pid;
+			if (read_pid(argv[i] + 13, &pid) == 0)		
+				caps_print_filter(pid);
+			else
+				caps_print_filter_name(argv[i] + 13);
+				
+			// it will never get here!!!
+			exit(0);
+		}
+	
 		else if (strncmp(argv[i], "--dns.print=", 12) == 0) {
 			// join sandbox by pid or by name
 			pid_t pid;

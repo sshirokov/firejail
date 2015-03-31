@@ -45,6 +45,9 @@ void usage(void) {
 	printf("\t\tcapabilities filter.\n\n");
 	printf("\t--caps.keep=capability,capability,capability - whitelist Linux\n");
 	printf("\t\tcapabilities filter.\n\n");
+	printf("\t--caps.print=name - print the caps filter for the sandbox started\n");
+	printf("\t\tusing --name option.\n\n");
+	printf("\t--caps.print=pid - print the caps filter for the specified sandbox.\n\n");
 	printf("\t--cgroup=tasks-file - place the sandbox in the specified control group.\n");
 	printf("\t\ttasks-file is the full path of cgroup tasks file.\n");
 	printf("\t\tExample: --cgroup=/sys/fs/cgroup/g1/tasks\n\n");
@@ -94,6 +97,7 @@ void usage(void) {
 	printf("\t\tdefault gateway of the host. Up to four --net devices can\n");
 	printf("\t\tbe defined. Mixing bridge and macvlan devices is allowed.\n\n");
 	printf("\t--net=none - enable a new, unconnected network namespace.\n\n");
+
 	printf("\t--netfilter - enable the default client network filter in the new\n");
 	printf("\t\tnetwork namespace:\n\n");
 	printf("\t\t*filter\n");
@@ -102,11 +106,14 @@ void usage(void) {
 	printf("\t\t:OUTPUT ACCEPT [0:0]\n");
 	printf("\t\t-A INPUT -i lo -j ACCEPT\n");
 	printf("\t\t-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT\n");
-	printf("\t\t-A INPUT -p icmp -j ACCEPT\n");
+	printf("\t\t-A INPUT -p icmp --icmp-type destination-unreachable -j ACCEPT\n");
+	printf("\t\t-A INPUT -p icmp --icmp-type time-exceeded -j ACCEPT\n");
+	printf("\t\t-A INPUT -p icmp --icmp-type echo-request -j ACCEPT \n");
 	printf("\t\tCOMMIT\n\n");
 	printf("\t--netfilter=filename - enable the network filter specified by\n");
 	printf("\t\tfilename in the new network namespace. The filter file format\n");
 	printf("\t\tis the format of iptables-save and iptable-restore commands.\n\n");
+
 	printf("\t--netstats - monitor network statistics for sandboxes creating a new\n");
 	printf("\t\tnetwork namespace.\n\n");
 	printf("\t--nogroups - disable supplementary groups. Without this option,\n");
@@ -151,6 +158,8 @@ void usage(void) {
 	
 	printf("\t--seccomp.print=name - print the seccomp filter for the sandbox started\n");
 	printf("\t\tusing --name option.\n\n");
+	printf("\t--seccomp.print=pid - print the seccomp filter for the sandbox specified\n");
+	printf("\t\tby process ID.\n\n");
 #endif
 
 	printf("\t--shell=none - run the program directly without a user shell.\n\n");

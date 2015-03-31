@@ -58,7 +58,7 @@ QString StatsDialog::header() {
 		msg += "</td></tr></table>";
 	}
 	
-	if (mode_ == MODE_TREE || mode_ == MODE_SECCOMP || mode_ == MODE_DNS) {
+	if (mode_ == MODE_TREE || mode_ == MODE_SECCOMP || mode_ == MODE_DNS || mode_ == MODE_CAPS) {
 		msg += "<table><tr><td width=\"5\"></td><td>";
 		msg += "<a href=\"top\">Home</a>";
 		msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"back\">" + QString::number(pid_) + "</a>";
@@ -143,8 +143,8 @@ void StatsDialog::updateTree() {
 			}
 			ptr++;
 		}
+		free(cmd);
 	}		
-	free(cmd);
 
 	msg += "</td></tr></table>";
 	procView_->setHtml(msg);
@@ -186,10 +186,53 @@ void StatsDialog::updateSeccomp() {
 			}
 			ptr++;
 		}
+		free(cmd);
 	}		
-	free(cmd);
 
 	msg += "</td></tr></table>";
+	procView_->setHtml(msg);
+}
+
+void StatsDialog::updateCaps() {
+	int cycle = Db::instance().getCycle();
+	assert(cycle < DbPid::MAXCYCLE);
+	DbPid *dbptr = Db::instance().findPid(pid_);
+	if (!dbptr) {
+		QString msg = "Process not found!<br/>";
+		msg += "<hr>" + header();
+		procView_->setHtml(msg);
+		mode_ = MODE_TOP;
+		return;
+	}
+
+	QString msg = header();
+	msg += "<hr><table><tr><td width=\"5\"></td><td>";
+		
+	char *str = 0;
+	char *cmd;
+	if (asprintf(&cmd, "firejail --caps.print=%d", pid_) != -1) {
+		str = run_program(cmd);
+		char *ptr = str;
+		// htmlize!
+		while (*ptr != 0) {
+			if (*ptr == '\n') {
+				*ptr = '\0';
+				msg += QString(str) + "<br/>\n";
+				ptr++;
+				
+//				while (*ptr == ' ') {
+//					msg += "&nbsp;&nbsp;";
+//					ptr++;
+//				}	
+				str = ptr;
+				continue;
+			}
+			ptr++;
+		}
+		free(cmd);
+	}		
+
+	msg += "</pre></td></tr></table>";
 	procView_->setHtml(msg);
 }
 
@@ -213,6 +256,7 @@ void StatsDialog::updateDns() {
 	if (asprintf(&cmd, "firejail --dns.print=%d", pid_) != -1) {
 		str = run_program(cmd);
 		char *ptr = str;
+
 		// htmlize!
 		while (*ptr != 0) {
 			if (*ptr == '\n') {
@@ -325,7 +369,7 @@ void StatsDialog::updatePid() {
 	msg += "</td></tr>";
 
 	msg += QString("<tr><td></td><td>RSS " + QString::number((int) st->rss_) + ", shared " + QString::number((int) st->shared_)) + "</td>";	
-	msg += QString("<td>Capabilities: ") + pid_caps_ + "</td></tr>";	
+	msg += QString("<td>Capabilities: <a href=\"caps\">") + pid_caps_ + "</a></td></tr>";	
 	
 	// graphs
 	msg += "<tr></tr>";
@@ -349,6 +393,8 @@ void StatsDialog::cycleReady() {
 			updateSeccomp();
 		else if (mode_ == MODE_DNS)
 			updateDns();
+		else if (mode_ == MODE_CAPS)
+			updateCaps();
 	}
 }
 
@@ -367,6 +413,8 @@ void StatsDialog::anchorClicked(const QUrl & link) {
 			mode_ = MODE_PID;
 		else if (mode_ == MODE_DNS)
 			mode_ = MODE_PID;
+		else if (mode_ == MODE_CAPS)
+			mode_ = MODE_PID;
 		else if (mode_ == MODE_TOP);
 		else
 			assert(0);
@@ -376,6 +424,9 @@ void StatsDialog::anchorClicked(const QUrl & link) {
 	}
 	else if (linkstr == "seccomp") {
 		mode_ = MODE_SECCOMP;
+	}
+	else if (linkstr == "caps") {
+		mode_ = MODE_CAPS;
 	}
 	else if (linkstr == "dns") {
 		mode_ = MODE_DNS;
@@ -417,7 +468,6 @@ void StatsDialog::anchorClicked(const QUrl & link) {
 			"using Linux namespaces and seccomp-bpf. Firetool is the graphical "
 			"user interface of Firejail. Firejail and Firetool are released "
 			"under GPL v2 license.<br/><br/>");
-		msg += "Copyright (C) 2014 Firejail Authors<br/><br/>";
 		msg += QString(PACKAGE_URL) + "</td></tr></table><br/><br/>";
 	
 		QMessageBox::about(this, tr("About"), msg);
