@@ -579,6 +579,10 @@ int main(int argc, char **argv) {
 				cfg.bridge3.configured = 0;
 				continue;
 			}
+			if (strcmp(argv[i] + 6, "lo") == 0) {
+				fprintf(stderr, "Error: cannot attach to lo device\n");
+				exit(1);
+			}
 
 			Bridge *br;
 			if (cfg.bridge0.configured == 0)

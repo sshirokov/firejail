@@ -14,10 +14,10 @@
 
 # network testing
 0 firejail --net=none exit
-1 firejail --noip --net=none exit # noip requires at least one network
+1 firejail --ip=none --net=none exit # noip requires at least one network
 0 firejail --net=br0 exit
 1 firejail --net=none --net=br0 exit # --net and --net=none are mutually exclusive
-1 firejail --noip exit # noip requires at least one network
+1 firejail --ip=none exit # noip requires at least one network
 1 firejail --defaultgw=10.10.20.1 # no bridge configured
 0 firejail --net=br0 --ip=10.10.20.6 exit
 1 firejail --net=br0 --ip=192.168.5.6 exit # interface range
@@ -33,8 +33,15 @@
 1 firejail --net=
 1 firejail --net=bingo
 1 firejail --net=loopback
+1 firejail --net=lo	#invalid network device
 1 firejail --net=/br0 exit
 1 firejail --net=br0 --net=br1 --net=br2 --net=br3 --net=br4 exit # only 4 networks allowed
+0 firejail --net=eth0 exit
+1 firejail --net=/dev/eth0 exit
+1 firejail --net=br0 --net=br1 --net=/dev/eth0 exit
+0 firejail --net=br0 --net=br0 exit # same device twice
+0 firejail --net=eth0 --net=br2 --net=br3 --net=eth0 exit # same device twice
+0 firejail --net=eth0 --net=br0 exit
 
 # private mode
 0 firejail --private exit
