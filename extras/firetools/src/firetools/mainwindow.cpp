@@ -49,8 +49,10 @@ void MainWindow::run() {
 		if (index == 0) {
 			stats_->show();
 		}
-		else
-			system(applist[index].exec_.toStdString().c_str());
+		else {
+			int rv = system(applist[index].exec_.toStdString().c_str());
+			(void) rv;
+		}
 	}
 		
 	animation_id_ = AFRAMES;
@@ -105,8 +107,10 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent *event) {
 			if (index == 0) {
 				stats_->show();
 			}
-			else
-				system(applist[index].exec_.toStdString().c_str());
+			else {
+				int rv = system(applist[index].exec_.toStdString().c_str());
+				(void) rv;
+			}
 			event->accept();
 			animation_id_ = AFRAMES;
 			active_index_ = index;
