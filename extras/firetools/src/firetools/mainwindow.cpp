@@ -146,9 +146,9 @@ void MainWindow::paintEvent(QPaintEvent *) {
 	QPen pen1(Qt::black);
 	painter.setPen(pen1);
 	for (i = 0; i < cols; i++) {
-		painter.drawLine(MARGIN * 2 + i * 64 + 21, MARGIN * 2 + TOP, MARGIN * 2 + i * 64 + 21, MARGIN * 2 + nelem * 64 + TOP);
-		painter.drawLine(MARGIN * 2 + i * 64 + 43, MARGIN * 2 + TOP, MARGIN * 2 + i * 64 + 43, MARGIN * 2 + nelem * 64 + TOP);
-		painter.drawLine(MARGIN * 2 + i * 64 + 64, MARGIN * 2 + TOP, MARGIN * 2 + i * 64 + 64, MARGIN * 2 + nelem * 64 + TOP);
+		painter.drawLine(MARGIN * 2 + i * 64 + 21, MARGIN * 2 + TOP, MARGIN * 2 + i * 64 + 21, MARGIN * 2 + ROWS * 64 + TOP);
+		painter.drawLine(MARGIN * 2 + i * 64 + 43, MARGIN * 2 + TOP, MARGIN * 2 + i * 64 + 43, MARGIN * 2 + ROWS * 64 + TOP);
+		painter.drawLine(MARGIN * 2 + i * 64 + 64, MARGIN * 2 + TOP, MARGIN * 2 + i * 64 + 64, MARGIN * 2 + ROWS * 64 + TOP);
 	}
 	
 	// horizontal bars
