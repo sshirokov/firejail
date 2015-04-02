@@ -356,7 +356,7 @@ void profile_read(const char *fname) {
 		exit(1);
 	}
 
-	printf("Reading profile %s\n", fname);
+	fprintf(stderr, "Reading profile %s\n", fname);
 
 	// read the file line by line
 	char buf[MAX_READ + 1];
